@@ -3,8 +3,8 @@ package list
 import "iter"
 
 type testItem struct {
-	name string
-	age  int
+	text   string
+	number int
 }
 
 // func main() {
@@ -30,7 +30,11 @@ type List[T any] struct {
 }
 
 func NewList[T any]() *List[T] {
-	return &List[T]{}
+	return &List[T]{
+		head:   nil,
+		tail:   nil,
+		length: 0,
+	}
 }
 
 func (l *List[T]) Update(data *T) {
@@ -59,36 +63,84 @@ func (l *List[T]) Append(data *T) {
 	l.length++
 }
 
-func (l *List[T]) Remove(data *T) {
-	if l.head == nil || l.length == 0 {
+func (list *List[T]) DeleteNode(node *Node[T]) {
+	if list.head == nil || list.length == 0 {
 		return
 	}
 
-	if l.head.data == data {
-		l.head = l.head.next
-		l.length--
+	switch list.length {
+	case 1:
+		// list is now empty
+		list.length = 0
+		return
+
+	case 2:
+		if node == list.head { // if node to delete is current head
+			list.head = node.next
+		} else if node.next == list.tail { // if node to delete is current tail
+			list.head = node.previous
+		}
+		list.head.previous = nil
+		list.head.next = nil
+		list.tail = list.head
+		list.length = 1
+		return
+	default:
+		if node == list.head { // if node to delete is current head
+			node.next.previous = nil
+			list.head = node.next
+
+		} else if node.next == list.tail { // if node to delete is current tail
+			list.tail = node.previous
+			list.tail.next = nil
+
+		} else { // if node to delete is in the middle
+			node.previous.next = node.next
+			node.next.previous = node.previous
+		}
+		list.length--
 		return
 	}
 
-	current := l.head
-	for current.next != nil {
-		if current.next.data == data {
-			current.next = current.next.next
-			l.length--
+}
 
+func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
+	return func(yield func(*Node[T]) bool) {
+		if list.head == nil {
 			return
 		}
-		current = current.next
+		current := list.head
+
+		for {
+			if current == nil {
+				return
+			}
+
+			if !yield(current) {
+				return
+			}
+			current = current.next
+		}
 	}
 }
 
-func (l *List[T]) All() iter.Seq[*T] {
+func (list *List[T]) AllData() iter.Seq[*T] {
 	return func(yield func(*T) bool) {
+		if list.head == nil {
+			return
+		}
+		current := list.head
 
-		for l.head.next != nil {
-			if !yield(l.head.next.data) {
+		for {
+			if current == nil {
 				return
 			}
+
+			if !yield(current.data) {
+				return
+			}
+			current = current.next
 		}
+
 	}
 }

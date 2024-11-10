@@ -2,34 +2,19 @@ package list
 
 import "iter"
 
-type testItem struct {
-	text   string
-	number int
-}
-
-// func main() {
-// 	l := NewList[testItem]()
-// 	for i := range 10 {
-// 		l.Append(&testItem{
-// 			name: "test",
-// 			age:  i,
-// 		})
-// 	}
-// }
-
-type Node[T any] struct {
+type Node[T comparable] struct {
 	data     *T
 	next     *Node[T]
 	previous *Node[T]
 }
 
-type List[T any] struct {
+type List[T comparable] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 }
 
-func NewList[T any]() *List[T] {
+func NewList[T comparable]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,
@@ -37,30 +22,26 @@ func NewList[T any]() *List[T] {
 	}
 }
 
-func (l *List[T]) Update(data *T) {
-
-}
-
-func (l *List[T]) Append(data *T) {
+func (list *List[T]) Append(data *T) {
 	node := &Node[T]{data: data}
-	switch l.length {
+	switch list.length {
 	case 0:
 		// init new list, head and tail point to new node
-		l.head = node
-		l.tail = node
+		list.head = node
+		list.tail = node
 
 	default:
 		// point tail.next at new node
-		l.tail.next = node
+		list.tail.next = node
 
 		// point new node.previous at tail
-		node.previous = l.tail
+		node.previous = list.tail
 
 		// point tail at new node
-		l.tail = node
+		list.tail = node
 	}
 
-	l.length++
+	list.length++
 }
 
 func (list *List[T]) DeleteNode(node *Node[T]) {
@@ -72,6 +53,8 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 	case 1:
 		// list is now empty
 		list.length = 0
+		list.head = nil
+		list.tail = nil
 		return
 
 	case 2:
@@ -85,6 +68,7 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		list.tail = list.head
 		list.length = 1
 		return
+
 	default:
 		if node == list.head { // if node to delete is current head
 			node.next.previous = nil

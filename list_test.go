@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// type testItem struct {
-// 	name string
-// 	age  int
-// }
+type testItem struct {
+	text   string
+	number int
+}
 
 func BenchmarkNewList(b *testing.B) {
 	list := NewList[testItem]()

@@ -66,6 +66,12 @@ func (list *List[T]) Append(data *T) {
 // 	return node
 // }
 
+type RunFunc[T any] func(*Node[T])
+
+func (node *Node[T]) Run(fu RunFunc[T]) {
+	fu(node)
+}
+
 func (list *List[T]) Length() int {
 	return list.length
 }

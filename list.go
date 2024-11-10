@@ -2,19 +2,19 @@ package linked
 
 import "iter"
 
-type Node[T comparable] struct {
+type Node[T any] struct {
 	D        *T
 	next     *Node[T]
 	previous *Node[T]
 }
 
-type List[T comparable] struct {
+type List[T any] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 }
 
-func NewList[T comparable]() *List[T] {
+func NewList[T any]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,

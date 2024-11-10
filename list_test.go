@@ -1,4 +1,4 @@
-package list
+package linked
 
 import (
 	"testing"
@@ -43,7 +43,7 @@ func BenchmarkDelete(b *testing.B) {
 		})
 	}
 	for d := range list.AllNodes() {
-		if d.data.number%200 == 0 {
+		if d.D.number%200 == 0 {
 			list.DeleteNode(d)
 		}
 		// b.Log(d)

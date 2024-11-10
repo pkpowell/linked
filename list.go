@@ -3,7 +3,7 @@ package linked
 import "iter"
 
 type Node[T comparable] struct {
-	data     *T
+	D        *T
 	next     *Node[T]
 	previous *Node[T]
 }
@@ -23,7 +23,7 @@ func NewList[T comparable]() *List[T] {
 }
 
 func (list *List[T]) Append(data *T) {
-	node := &Node[T]{data: data}
+	node := &Node[T]{D: data}
 	switch list.length {
 	case 0:
 		// init new list, head and tail point to new node
@@ -120,7 +120,7 @@ func (list *List[T]) AllData() iter.Seq[*T] {
 				return
 			}
 
-			if !yield(current.data) {
+			if !yield(current.D) {
 				return
 			}
 			current = current.next

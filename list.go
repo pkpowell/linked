@@ -2,28 +2,28 @@ package linked
 
 import "iter"
 
-type Data[T any] interface {
-	any
-	*T
-	*Node[T]
-	SetNode(*Node[T])
-	// next     *Node[T]
-	// previous *Node[T]
-}
+// type Data[T any] interface {
+// 	any
+// 	*T
+// 	*Node[T]
+// 	SetNode(*Node[T])
+// 	// next     *Node[T]
+// 	// previous *Node[T]
+// }
 
 type Node[T any] struct {
-	// D        *T
+	D        *T
 	next     *Node[T]
 	previous *Node[T]
 }
 
-type List[T Data[T]] struct {
+type List[T any] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 }
 
-func NewList[T Data[T]]() *List[T] {
+func NewList[T any]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,
@@ -31,28 +31,7 @@ func NewList[T Data[T]]() *List[T] {
 	}
 }
 
-func (list *List[T]) Append(data *T) {
-	node := &Node[T]{data}
-	switch list.length {
-	case 0:
-		// init new list, head and tail point to new node
-		list.head = node
-		list.tail = node
-
-	default:
-		// point tail.next at new node
-		list.tail.next = node
-
-		// point new node.previous at tail
-		node.previous = list.tail
-
-		// point tail at new node
-		list.tail = node
-	}
-	list.length++
-}
-
-// func (list *List[T]) Append(data *T) *Node[T] {
+// func (list *List[T]) Append(data *T) {
 // 	node := &Node[T]{D: data}
 // 	switch list.length {
 // 	case 0:
@@ -70,10 +49,31 @@ func (list *List[T]) Append(data *T) {
 // 		// point tail at new node
 // 		list.tail = node
 // 	}
-
 // 	list.length++
-// 	return node
 // }
+
+func (list *List[T]) Append(data *T) *Node[T] {
+	node := &Node[T]{D: data}
+	switch list.length {
+	case 0:
+		// init new list, head and tail point to new node
+		list.head = node
+		list.tail = node
+
+	default:
+		// point tail.next at new node
+		list.tail.next = node
+
+		// point new node.previous at tail
+		node.previous = list.tail
+
+		// point tail at new node
+		list.tail = node
+	}
+
+	list.length++
+	return node
+}
 
 type RunFunc[T any] func(*Node[T])
 

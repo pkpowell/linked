@@ -40,8 +40,34 @@ func (list *List[T]) Append(data *T) {
 		// point tail at new node
 		list.tail = node
 	}
-
 	list.length++
+}
+
+// func (list *List[T]) Append(data *T) *Node[T] {
+// 	node := &Node[T]{D: data}
+// 	switch list.length {
+// 	case 0:
+// 		// init new list, head and tail point to new node
+// 		list.head = node
+// 		list.tail = node
+
+// 	default:
+// 		// point tail.next at new node
+// 		list.tail.next = node
+
+// 		// point new node.previous at tail
+// 		node.previous = list.tail
+
+// 		// point tail at new node
+// 		list.tail = node
+// 	}
+
+// 	list.length++
+// 	return node
+// }
+
+func (list *List[T]) Length() int {
+	return list.length
 }
 
 func (list *List[T]) DeleteNode(node *Node[T]) {

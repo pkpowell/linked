@@ -2,27 +2,28 @@ package linked
 
 import "iter"
 
-type Node[T NodeData] interface {
+type Data[T any] interface {
 	any
-	SetNode(*Node[T])
 	*T
-	next     *Node[T]
-	previous *Node[T]
+	*Node[T]
+	SetNode(*Node[T])
+	// next     *Node[T]
+	// previous *Node[T]
 }
 
 type Node[T any] struct {
-	D        *T
+	// D        *T
 	next     *Node[T]
 	previous *Node[T]
 }
 
-type List[T any] struct {
+type List[T Data[T]] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 }
 
-func NewList[T any]() *List[T] {
+func NewList[T Data[T]]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,
@@ -31,7 +32,7 @@ func NewList[T any]() *List[T] {
 }
 
 func (list *List[T]) Append(data *T) {
-	node := &Node[T]{D: data}
+	node := &Node[T]{data}
 	switch list.length {
 	case 0:
 		// init new list, head and tail point to new node
@@ -160,7 +161,7 @@ func (list *List[T]) AllData() iter.Seq[*T] {
 				return
 			}
 
-			if !yield(current.D) {
+			if !yield(current) {
 				return
 			}
 			current = current.next

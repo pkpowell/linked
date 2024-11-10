@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-type testItem struct {
-	name string
-	age  int
-}
+// type testItem struct {
+// 	name string
+// 	age  int
+// }
 
 func BenchmarkNewList(b *testing.B) {
 	list := NewList[testItem]()
@@ -41,4 +41,17 @@ func BenchmarkNewSlice(b *testing.B) {
 		})
 	}
 	b.Logf("length array %d", len(list))
+}
+
+func TestList(t *testing.T) {
+	l := NewList[testItem]()
+	for i := range 10 {
+		l.Append(&testItem{
+			name: "test",
+			age:  i,
+		})
+	}
+	for d := range l.All() {
+		t.Log(d)
+	}
 }

@@ -2,6 +2,21 @@ package list
 
 import "iter"
 
+type testItem struct {
+	name string
+	age  int
+}
+
+// func main() {
+// 	l := NewList[testItem]()
+// 	for i := range 10 {
+// 		l.Append(&testItem{
+// 			name: "test",
+// 			age:  i,
+// 		})
+// 	}
+// }
+
 type Node[T any] struct {
 	data     *T
 	next     *Node[T]

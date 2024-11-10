@@ -2,6 +2,14 @@ package linked
 
 import "iter"
 
+type Node[T NodeData] interface {
+	any
+	SetNode(*Node[T])
+	*T
+	next     *Node[T]
+	previous *Node[T]
+}
+
 type Node[T any] struct {
 	D        *T
 	next     *Node[T]

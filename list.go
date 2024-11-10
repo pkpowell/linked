@@ -149,8 +149,8 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	}
 }
 
-func (list *List[T]) AllData() iter.Seq[*T] {
-	return func(yield func(*T) bool) {
+func (list *List[T]) AllData() iter.Seq[*Node[T]] {
+	return func(yield func(*Node[T]) bool) {
 		if list.head == nil {
 			return
 		}

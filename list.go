@@ -2,7 +2,10 @@ package linked
 
 import "iter"
 
-type NodeData any
+type NodeData interface {
+	any
+	GetID() string
+}
 
 type Node[T NodeData] struct {
 	D        *T
@@ -110,6 +113,28 @@ func (list *List[T]) Append(data *T) *Node[T] {
 // returns list length
 func (list *List[T]) Length() int {
 	return list.length
+}
+
+// returns node with given id
+func (list *List[T]) Get(id string) *Node[T] {
+	current := list.head
+	data := *current.D
+	for {
+		if current == nil {
+			break
+		}
+
+		if data.GetID() == id {
+			return current
+		}
+		current = current.next
+	}
+	// for d := range list.AllNodes() {
+	// 	if d.D.GetID() == id {
+	// 		return d
+	// 	}
+	// }
+	return nil
 }
 
 // DeleteNode deletes a node from the list

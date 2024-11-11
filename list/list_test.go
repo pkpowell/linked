@@ -29,7 +29,7 @@ func BenchmarkAllList(b *testing.B) {
 	list := NewList[testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
-			ID:     "test",
+			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}
@@ -43,7 +43,7 @@ func BenchmarkDelete(b *testing.B) {
 	list := NewList[testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
-			ID:     "test",
+			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}
@@ -57,21 +57,21 @@ func BenchmarkDelete(b *testing.B) {
 }
 
 func BenchmarkNewSlice(b *testing.B) {
-	list := []*testItem{}
+	arr := []*testItem{}
 	for i := range b.N {
-		list = append(list, &testItem{
-			ID:     "test",
+		arr = append(arr, &testItem{
+			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}
-	b.Logf("length array %d", len(list))
+	b.Logf("length array %d", len(arr))
 }
 
 func TestList(t *testing.T) {
 	l := NewList[testItem]()
 	for i := range 10 {
 		l.Append(&testItem{
-			ID:     "test",
+			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}

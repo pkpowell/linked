@@ -23,6 +23,7 @@ type List[T any] struct {
 	length int
 }
 
+// NewList creates a new empty list
 func NewList[T any]() *List[T] {
 	return &List[T]{
 		head:   nil,
@@ -31,27 +32,59 @@ func NewList[T any]() *List[T] {
 	}
 }
 
-// func (list *List[T]) Append(data *T) {
-// 	node := &Node[T]{D: data}
-// 	switch list.length {
-// 	case 0:
-// 		// init new list, head and tail point to new node
-// 		list.head = node
-// 		list.tail = node
+// InsertBefore adds a new node before a given node
+func (list *List[T]) InsertBefore(data *T, n *Node[T]) *Node[T] {
+	node := &Node[T]{D: data}
+	if list.length == 0 {
+		list.head = node
+		list.tail = node
+		return node
+	}
+	n.previous = node
+	node.next = n
+	list.length++
+	return node
+}
 
-// 	default:
-// 		// point tail.next at new node
-// 		list.tail.next = node
+// InsertAfter adds a new node after a given node
+func (list *List[T]) InsertAfter(data *T, n *Node[T]) *Node[T] {
+	node := &Node[T]{D: data}
+	if list.length == 0 {
+		list.head = node
+		list.tail = node
+		return node
+	}
+	node.previous = n
+	n.next = node
+	list.length++
 
-// 		// point new node.previous at tail
-// 		node.previous = list.tail
+	return node
+}
 
-// 		// point tail at new node
-// 		list.tail = node
-// 	}
-// 	list.length++
-// }
+// Prepend adds a new node to the beginning of the list
+func (list *List[T]) Prepend(data *T) *Node[T] {
+	node := &Node[T]{D: data}
+	switch list.length {
+	case 0:
+		// init new list, head and tail point to new node
+		list.head = node
+		list.tail = node
 
+	default:
+		// point previous head at new node
+		list.head.previous = node
+		// point new node at previous head
+		node.next = list.head
+
+		// point tail at new node
+		list.head = node
+	}
+
+	list.length++
+	return node
+}
+
+// Append adds a new node to the end of the list
 func (list *List[T]) Append(data *T) *Node[T] {
 	node := &Node[T]{D: data}
 	switch list.length {
@@ -81,18 +114,18 @@ func (node *Node[T]) Run(fu RunFunc[T]) {
 	fu(node)
 }
 
+// returns list length
 func (list *List[T]) Length() int {
 	return list.length
 }
 
+// DeleteNode deletes a node from the list
 func (list *List[T]) DeleteNode(node *Node[T]) {
-	if list.head == nil || list.length == 0 {
-		return
-	}
-
 	switch list.length {
+	case 0:
+		return
 	case 1:
-		// list is now empty
+		//  list is now empty
 		list.length = 0
 		list.head = nil
 		list.tail = nil
@@ -126,12 +159,12 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		list.length--
 		return
 	}
-
 }
 
+// AllNodes returns all nodes in the list
 func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	return func(yield func(*Node[T]) bool) {
-		if list.head == nil {
+		if list.length == 0 {
 			return
 		}
 		current := list.head
@@ -149,9 +182,10 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	}
 }
 
+// AllData returns all data in the list (without nodes)
 func (list *List[T]) AllData() iter.Seq[*Node[T]] {
 	return func(yield func(*Node[T]) bool) {
-		if list.head == nil {
+		if list.length == 0 {
 			return
 		}
 		current := list.head
@@ -166,6 +200,5 @@ func (list *List[T]) AllData() iter.Seq[*Node[T]] {
 			}
 			current = current.next
 		}
-
 	}
 }

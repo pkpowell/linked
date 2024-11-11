@@ -29,8 +29,8 @@ func BenchmarkAllList(b *testing.B) {
 		})
 	}
 	b.Logf("length list %d", list.length)
-	for d := range list.AllData() {
-		b.Log(d)
+	for _ = range list.AllData() {
+		// b.Log(d)
 	}
 }
 

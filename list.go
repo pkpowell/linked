@@ -2,29 +2,22 @@ package linked
 
 import "iter"
 
-// type Data[T any] interface {
-// 	any
-// 	*T
-// 	*Node[T]
-// 	SetNode(*Node[T])
-// 	// next     *Node[T]
-// 	// previous *Node[T]
-// }
+type NodeData any
 
-type Node[T any] struct {
+type Node[T NodeData] struct {
 	D        *T
 	next     *Node[T]
 	previous *Node[T]
 }
 
-type List[T any] struct {
+type List[T NodeData] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 }
 
 // NewList creates a new empty list
-func NewList[T any]() *List[T] {
+func NewList[T NodeData]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,
@@ -108,11 +101,11 @@ func (list *List[T]) Append(data *T) *Node[T] {
 	return node
 }
 
-type RunFunc[T any] func(*Node[T])
+// type RunFunc[T any] func(*Node[T])
 
-func (node *Node[T]) Run(fu RunFunc[T]) {
-	fu(node)
-}
+// func (node *Node[T]) Run(fu RunFunc[T]) {
+// 	fu(node)
+// }
 
 // returns list length
 func (list *List[T]) Length() int {

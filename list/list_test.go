@@ -164,7 +164,7 @@ func TestDeleteLastNode(t *testing.T) {
 }
 
 func TestAllDataEmptyList(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	count := 0
 	for range l.AllData() {
 		count++

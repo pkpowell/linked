@@ -1,6 +1,9 @@
 package linked
 
-import "iter"
+import (
+	"fmt"
+	"iter"
+)
 
 type NodeData interface {
 	any
@@ -119,21 +122,17 @@ func (list *List[T]) Length() int {
 func (list *List[T]) Get(id string) *Node[T] {
 	current := list.head
 	data := *current.D
+	fmt.Printf("data %v\n", data)
 	for {
 		if current == nil {
 			break
 		}
-
 		if data.GetID() == id {
+			fmt.Printf("found %s id %s\n", data.GetID(), id)
 			return current
 		}
 		current = current.next
 	}
-	// for d := range list.AllNodes() {
-	// 	if d.D.GetID() == id {
-	// 		return d
-	// 	}
-	// }
 	return nil
 }
 

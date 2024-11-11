@@ -183,8 +183,8 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 }
 
 // AllData returns all data in the list (without nodes)
-func (list *List[T]) AllData() iter.Seq[*Node[T]] {
-	return func(yield func(*Node[T]) bool) {
+func (list *List[T]) AllData() iter.Seq[*T] {
+	return func(yield func(*T) bool) {
 		if list.length == 0 {
 			return
 		}
@@ -195,7 +195,7 @@ func (list *List[T]) AllData() iter.Seq[*Node[T]] {
 				return
 			}
 
-			if !yield(current) {
+			if !yield(current.D) {
 				return
 			}
 			current = current.next

@@ -122,7 +122,7 @@ func (list *List[T]) Length() int {
 func (list *List[T]) Get(id string) *Node[T] {
 	current := list.head
 	data := current.D
-	fmt.Printf("data %v, %s\n", data, id)
+	fmt.Printf("data %v\n", data)
 	for {
 		if current == nil {
 			break
@@ -200,8 +200,8 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 }
 
 // AllData returns all data in the list (without nodes)
-func (list *List[T]) AllData() iter.Seq[T] {
-	return func(yield func(T) bool) {
+func (list *List[T]) AllData() iter.Seq[*T] {
+	return func(yield func(*T) bool) {
 		if list.length == 0 {
 			return
 		}
@@ -212,7 +212,7 @@ func (list *List[T]) AllData() iter.Seq[T] {
 				return
 			}
 
-			if !yield(current.D) {
+			if !yield(&current.D) {
 				return
 			}
 			current = current.next

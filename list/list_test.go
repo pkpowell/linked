@@ -105,9 +105,9 @@ func TestGet(t *testing.T) {
 
 	get = l.Get("first")
 	if get != first {
-		t.Errorf("Expected node <first>, got %v", get)
+		t.Errorf("Expected node <first>, got %v", get.D)
 	} else {
-		t.Logf("Found node %v", get)
+		t.Logf("Found node %v", get.D)
 	}
 
 	get = l.Get("second")

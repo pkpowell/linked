@@ -76,7 +76,7 @@ func TestList(t *testing.T) {
 		})
 	}
 	for d := range l.AllData() {
-		t.Log(d)
+		t.Log(*d)
 	}
 }
 

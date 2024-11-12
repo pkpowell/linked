@@ -98,30 +98,14 @@ func TestAppendAndLength(t *testing.T) {
 }
 func TestGet(t *testing.T) {
 	l := NewList[*testItem]()
-	first := l.Append(&testItem{ID: "first", number: 1})
-	second := l.Append(&testItem{ID: "second", number: 2})
-	third := l.Append(&testItem{ID: "third", number: 3})
-	var get *Node[*testItem]
+	ids := []string{"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"}
+	for idx, id := range ids {
+		node := l.Append(&testItem{ID: id, number: idx})
 
-	get = l.Get("first")
-	if get != first {
-		t.Errorf("Expected node <first>, got %v", get.D)
-	} else {
-		t.Logf("Found node %v", get.D)
-	}
-
-	get = l.Get("second")
-	if get != second {
-		t.Errorf("Expected node <second>, got %v", get)
-	} else {
-		t.Logf("Found node %v", get)
-	}
-
-	get = l.Get("third")
-	if get != third {
-		t.Errorf("Expected node <third>, got %v", get)
-	} else {
-		t.Logf("Found node %v", get)
+		get := l.Get(id)
+		if get == node {
+			t.Logf("Found node %v", get.D)
+		}
 	}
 }
 

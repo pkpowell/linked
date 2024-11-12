@@ -1,3 +1,3 @@
-module github.com/pkpowell/linked/list
+module github.com/pkpowell/linked
 
 go 1.23.3

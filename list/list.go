@@ -11,7 +11,7 @@ type NodeData interface {
 }
 
 type Node[T NodeData] struct {
-	D        *T
+	D        T
 	next     *Node[T]
 	previous *Node[T]
 }
@@ -32,7 +32,7 @@ func NewList[T NodeData]() *List[T] {
 }
 
 // InsertBefore adds a new node before a given node
-func (list *List[T]) InsertBefore(data *T, n *Node[T]) *Node[T] {
+func (list *List[T]) InsertBefore(data T, n *Node[T]) *Node[T] {
 	node := &Node[T]{D: data}
 	if list.length == 0 {
 		list.head = node
@@ -46,7 +46,7 @@ func (list *List[T]) InsertBefore(data *T, n *Node[T]) *Node[T] {
 }
 
 // InsertAfter adds a new node after a given node
-func (list *List[T]) InsertAfter(data *T, n *Node[T]) *Node[T] {
+func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
 	node := &Node[T]{D: data}
 	if list.length == 0 {
 		list.head = node
@@ -61,7 +61,7 @@ func (list *List[T]) InsertAfter(data *T, n *Node[T]) *Node[T] {
 }
 
 // Prepend adds a new node to the beginning of the list
-func (list *List[T]) Prepend(data *T) *Node[T] {
+func (list *List[T]) Prepend(data T) *Node[T] {
 	node := &Node[T]{D: data}
 	switch list.length {
 	case 0:
@@ -84,7 +84,7 @@ func (list *List[T]) Prepend(data *T) *Node[T] {
 }
 
 // Append adds a new node to the end of the list
-func (list *List[T]) Append(data *T) *Node[T] {
+func (list *List[T]) Append(data T) *Node[T] {
 	node := &Node[T]{D: data}
 	switch list.length {
 	case 0:
@@ -121,8 +121,8 @@ func (list *List[T]) Length() int {
 // returns node with given id
 func (list *List[T]) Get(id string) *Node[T] {
 	current := list.head
-	data := *current.D
-	fmt.Printf("data %v\n", data)
+	data := current.D
+	fmt.Printf("data %v, %s\n", data, id)
 	for {
 		if current == nil {
 			break
@@ -200,8 +200,8 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 }
 
 // AllData returns all data in the list (without nodes)
-func (list *List[T]) AllData() iter.Seq[*T] {
-	return func(yield func(*T) bool) {
+func (list *List[T]) AllData() iter.Seq[T] {
+	return func(yield func(T) bool) {
 		if list.length == 0 {
 			return
 		}

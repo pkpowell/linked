@@ -10,12 +10,12 @@ type testItem struct {
 	number int
 }
 
-func (i testItem) GetID() string {
+func (i *testItem) GetID() string {
 	return i.ID
 }
 
 func BenchmarkNewList(b *testing.B) {
-	list := NewList[testItem]()
+	list := NewList[*testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
@@ -26,7 +26,7 @@ func BenchmarkNewList(b *testing.B) {
 }
 
 func BenchmarkAllList(b *testing.B) {
-	list := NewList[testItem]()
+	list := NewList[*testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
@@ -40,7 +40,7 @@ func BenchmarkAllList(b *testing.B) {
 }
 
 func BenchmarkDelete(b *testing.B) {
-	list := NewList[testItem]()
+	list := NewList[*testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
@@ -68,7 +68,7 @@ func BenchmarkNewSlice(b *testing.B) {
 }
 
 func TestList(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	for i := range 10 {
 		l.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
@@ -81,14 +81,14 @@ func TestList(t *testing.T) {
 }
 
 func TestEmptyList(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	if l.length != 0 {
 		t.Errorf("Expected empty list length 0, got %d", l.length)
 	}
 }
 
 func TestAppendAndLength(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	l.Append(&testItem{ID: "first", number: 1})
 	l.Append(&testItem{ID: "second", number: 2})
 
@@ -97,32 +97,36 @@ func TestAppendAndLength(t *testing.T) {
 	}
 }
 func TestGet(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	first := l.Append(&testItem{ID: "first", number: 1})
 	second := l.Append(&testItem{ID: "second", number: 2})
 	third := l.Append(&testItem{ID: "third", number: 3})
-	get := l.Get("first")
+	var get *Node[*testItem]
+
+	get = l.Get("first")
 	if get != first {
 		t.Errorf("Expected node <first>, got %v", get)
 	} else {
-		t.Logf("Got node %v", get)
+		t.Logf("Found node %v", get)
 	}
+
 	get = l.Get("second")
 	if get != second {
 		t.Errorf("Expected node <second>, got %v", get)
 	} else {
-		t.Logf("Got node %v", get)
+		t.Logf("Found node %v", get)
 	}
+
 	get = l.Get("third")
 	if get != third {
 		t.Errorf("Expected node <third>, got %v", get)
 	} else {
-		t.Logf("Got node %v", get)
+		t.Logf("Found node %v", get)
 	}
 }
 
 func TestDeleteFirstNode(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	firstNode := l.Append(&testItem{ID: "first", number: 1})
 	secondNode := l.Append(&testItem{ID: "second", number: 2})
 	thirdNode := l.Append(&testItem{ID: "third", number: 3})
@@ -143,11 +147,11 @@ func TestDeleteFirstNode(t *testing.T) {
 }
 
 func TestDeleteLastNode(t *testing.T) {
-	l := NewList[testItem]()
+	l := NewList[*testItem]()
 	l.Append(&testItem{ID: "first", number: 1})
 	l.Append(&testItem{ID: "second", number: 2})
 
-	var lastNode *Node[testItem]
+	var lastNode *Node[*testItem]
 	for node := range l.AllNodes() {
 		lastNode = node
 	}
@@ -160,6 +164,20 @@ func TestDeleteLastNode(t *testing.T) {
 	remaining := l.Length()
 	if remaining != 1 {
 		t.Errorf("Expected remaining number 1, got %d", remaining)
+	}
+}
+func TestGetID(t *testing.T) {
+	l := NewList[*testItem]()
+	for i := range 10 {
+		l.Append(&testItem{
+			ID:     fmt.Sprintf("%d-test-", i),
+			number: i,
+		})
+	}
+	// l.Append(&testItem{ID: "first", number: 1})
+	// l.Append(&testItem{ID: "second", number: 2})
+	for n := range l.AllNodes() {
+		t.Logf("%s, %s", n.D.ID, n.D.GetID())
 	}
 }
 

@@ -142,6 +142,9 @@ func (list *List[T]) Append(data T) *Node[T] {
 
 // removes node from list
 func (node *Node[T]) Delete() {
+	node.mtx.Lock()
+	defer node.mtx.Unlock()
+
 	switch node.list.length {
 	case 0:
 		return

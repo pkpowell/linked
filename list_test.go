@@ -50,6 +50,7 @@ func BenchmarkDelete(b *testing.B) {
 	for d := range list.AllNodes() {
 		if d.D.number%200 == 0 {
 			list.DeleteNode(d)
+			// d.Delete()
 		}
 		// b.Log(d)
 	}

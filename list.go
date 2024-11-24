@@ -15,6 +15,7 @@ type Node[T NodeData] struct {
 	next     *Node[T]
 	previous *Node[T]
 	mtx      *sync.RWMutex
+	list     *List[T]
 }
 
 type List[T NodeData] struct {
@@ -51,9 +52,13 @@ func (list *List[T]) InsertBefore(data T, n *Node[T]) *Node[T] {
 	return node
 }
 
+func (l *List[T]) newNode(data T) *Node[T] {
+	return &Node[T]{D: data, mtx: &sync.RWMutex{}, list: l}
+}
+
 // InsertAfter adds a new node after a given node
 func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
-	node := &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -71,7 +76,7 @@ func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
 
 // Prepend adds a new node to the beginning of the list
 func (list *List[T]) Prepend(data T) *Node[T] {
-	node := &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -97,7 +102,7 @@ func (list *List[T]) Prepend(data T) *Node[T] {
 
 // Append adds a new node to the end of the list
 func (list *List[T]) Append(data T) *Node[T] {
-	node := &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -122,11 +127,47 @@ func (list *List[T]) Append(data T) *Node[T] {
 	return node
 }
 
-// type RunFunc[T any] func(*Node[T])
+// removes node from list
+func (node *Node[T]) Delete() {
+	switch node.list.length {
+	case 0:
+		return
+	case 1:
+		//  list is now empty
+		node.list.length = 0
+		node.list.head = nil
+		node.list.tail = nil
+		return
 
-// func (node *Node[T]) Run(fu RunFunc[T]) {
-// 	fu(node)
-// }
+	case 2:
+		if node == node.list.head { // if node to delete is current head
+			node.list.head = node.next
+		} else if node.next == node.list.tail { // if node to delete is current tail
+			node.list.head = node.previous
+		}
+		node.list.head.previous = nil
+		node.list.head.next = nil
+		node.list.tail = node.list.head
+		node.list.length = 1
+		return
+
+	default:
+		if node == node.list.head { // if node to delete is current head
+			node.next.previous = nil
+			node.list.head = node.next
+
+		} else if node.next == node.list.tail { // if node to delete is current tail
+			node.list.tail = node.previous
+			node.list.tail.next = nil
+
+		} else { // if node to delete is in the middle
+			node.previous.next = node.next
+			node.next.previous = node.previous
+		}
+		node.list.length--
+		return
+	}
+}
 
 // returns list length
 func (list *List[T]) Length() int {

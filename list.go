@@ -35,7 +35,11 @@ type Ring[T NodeData] struct {
 // NewList creates a new empty list
 func NewRing[T NodeData](length int) *Ring[T] {
 
-	return &Ring[T]{}
+	return &Ring[T]{
+		current: nil,
+		length:  length,
+		mtx:     &sync.RWMutex{},
+	}
 }
 
 // NewList creates a new empty list
@@ -148,6 +152,7 @@ func (node *Node[T]) Delete() {
 	switch node.list.length {
 	case 0:
 		return
+
 	case 1:
 		//  list is now empty
 		node.list.length = 0
@@ -167,15 +172,17 @@ func (node *Node[T]) Delete() {
 		node.list.length = 1
 		return
 
+	// list length 3 and longer
 	default:
+		// if node is head
 		if node == node.list.head { // if node to delete is current head
 			node.next.previous = nil
 			node.list.head = node.next
-
+			// if node is tail
 		} else if node.next == node.list.tail { // if node to delete is current tail
 			node.list.tail = node.previous
 			node.list.tail.next = nil
-
+			// if node is in the middle
 		} else { // if node to delete is in the middle
 			node.previous.next = node.next
 			node.next.previous = node.previous

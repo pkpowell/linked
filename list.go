@@ -25,6 +25,19 @@ type List[T NodeData] struct {
 	mtx    *sync.RWMutex
 }
 
+type Ring[T NodeData] struct {
+	current *Node[T]
+	// tail   *Node[T]
+	length int
+	mtx    *sync.RWMutex
+}
+
+// NewList creates a new empty list
+func NewRing[T NodeData](length int) *Ring[T] {
+
+	return &Ring[T]{}
+}
+
 // NewList creates a new empty list
 func NewList[T NodeData]() *List[T] {
 	return &List[T]{

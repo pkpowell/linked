@@ -18,6 +18,14 @@ type Node[T NodeData] struct {
 	list     *List[T]
 }
 
+type RingNode[T NodeData] struct {
+	D        T
+	next     *Node[T]
+	previous *Node[T]
+	// mtx      *sync.RWMutex
+	// list     *List[T]
+}
+
 type List[T NodeData] struct {
 	head   *Node[T]
 	tail   *Node[T]
@@ -26,14 +34,28 @@ type List[T NodeData] struct {
 }
 
 type Ring[T NodeData] struct {
-	current *Node[T]
-	// tail   *Node[T]
+	current *RingNode[T]
+
 	length int
 	mtx    *sync.RWMutex
 }
 
-// NewList creates a new empty list
+// NewList creates a new ring buffer
 func NewRing[T NodeData](length int) *Ring[T] {
+	current := &RingNode[T]{
+		D:        T{},
+		previous: nil,
+		// mtx: &sync.RWMutex{},
+		// list: list,
+	}
+	for range length - 1 {
+		// 	_ = &RingNode[T]{
+		// 		D:        nil,
+		// 		previous: current,
+		// 		// mtx: &sync.RWMutex{},
+		// 		// list: list,
+		// 	}
+	}
 
 	return &Ring[T]{
 		current: nil,
@@ -42,7 +64,7 @@ func NewRing[T NodeData](length int) *Ring[T] {
 	}
 }
 
-// NewList creates a new empty list
+// NewList creates a new list
 func NewList[T NodeData]() *List[T] {
 	return &List[T]{
 		head:   nil,
@@ -54,7 +76,7 @@ func NewList[T NodeData]() *List[T] {
 
 // InsertBefore adds a new node before a given node
 func (list *List[T]) InsertBefore(data T, n *Node[T]) *Node[T] {
-	node := &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -75,7 +97,7 @@ func (l *List[T]) newNode(data T) *Node[T] {
 
 // InsertAfter adds a new node after a given node
 func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
-	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -84,6 +106,7 @@ func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
 		list.tail = node
 		return node
 	}
+
 	node.previous = n
 	n.next = node
 	list.length++
@@ -93,7 +116,7 @@ func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
 
 // Prepend adds a new node to the beginning of the list
 func (list *List[T]) Prepend(data T) *Node[T] {
-	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -119,7 +142,7 @@ func (list *List[T]) Prepend(data T) *Node[T] {
 
 // Append adds a new node to the end of the list
 func (list *List[T]) Append(data T) *Node[T] {
-	node := list.newNode(data) // &Node[T]{D: data, mtx: &sync.RWMutex{}}
+	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -174,41 +197,18 @@ func (node *Node[T]) Delete() {
 
 	// list length 3 and longer
 	default:
-<<<<<<< Updated upstream
-		// if node is head
-		if node == node.list.head { // if node to delete is current head
-||||||| Stash base
-		if node == node.list.head { // if node to delete is current head
-=======
 		// if node to delete is current head
 		if node == node.list.head {
->>>>>>> Stashed changes
 			node.next.previous = nil
 			node.list.head = node.next
-<<<<<<< Updated upstream
-			// if node is tail
-		} else if node.next == node.list.tail { // if node to delete is current tail
-||||||| Stash base
-
-		} else if node.next == node.list.tail { // if node to delete is current tail
-=======
 
 			// if node to delete is current tail
 		} else if node.next == node.list.tail {
->>>>>>> Stashed changes
 			node.list.tail = node.previous
 			node.list.tail.next = nil
-<<<<<<< Updated upstream
-			// if node is in the middle
-		} else { // if node to delete is in the middle
-||||||| Stash base
-
-		} else { // if node to delete is in the middle
-=======
 
 			// if node to delete is in the middle
 		} else {
->>>>>>> Stashed changes
 			node.previous.next = node.next
 			node.next.previous = node.previous
 		}

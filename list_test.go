@@ -151,6 +151,16 @@ func TestDeleteLastNode(t *testing.T) {
 		t.Errorf("Expected remaining number 1, got %d", remaining)
 	}
 }
+func TestRing(t *testing.T) {
+	r := NewRing[*testItem](10)
+	n := r.current
+	for i := range r.length {
+		t.Logf("%d: previous: %p, next:%p", i, n.previous, n.next)
+		n = n.next
+
+	}
+}
+
 func TestGetID(t *testing.T) {
 	l := NewList[*testItem]()
 	for i := range 10 {

@@ -174,19 +174,46 @@ func (node *Node[T]) Delete() {
 
 	// list length 3 and longer
 	default:
+<<<<<<< Updated upstream
 		// if node is head
 		if node == node.list.head { // if node to delete is current head
+||||||| Stash base
+		if node == node.list.head { // if node to delete is current head
+=======
+		// if node to delete is current head
+		if node == node.list.head {
+>>>>>>> Stashed changes
 			node.next.previous = nil
 			node.list.head = node.next
+<<<<<<< Updated upstream
 			// if node is tail
 		} else if node.next == node.list.tail { // if node to delete is current tail
+||||||| Stash base
+
+		} else if node.next == node.list.tail { // if node to delete is current tail
+=======
+
+			// if node to delete is current tail
+		} else if node.next == node.list.tail {
+>>>>>>> Stashed changes
 			node.list.tail = node.previous
 			node.list.tail.next = nil
+<<<<<<< Updated upstream
 			// if node is in the middle
 		} else { // if node to delete is in the middle
+||||||| Stash base
+
+		} else { // if node to delete is in the middle
+=======
+
+			// if node to delete is in the middle
+		} else {
+>>>>>>> Stashed changes
 			node.previous.next = node.next
 			node.next.previous = node.previous
 		}
+
+		// decrement list length
 		node.list.length--
 		return
 	}
@@ -199,8 +226,12 @@ func (list *List[T]) Length() int {
 
 // returns node with given id
 func (list *List[T]) Get(id string) *Node[T] {
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
+
 	current := list.head
 	data := current.D
+
 	for {
 		if current == nil {
 			break
@@ -266,11 +297,7 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 		}
 		current := list.head
 
-		for {
-			if current == nil {
-				return
-			}
-
+		for range list.length {
 			if !yield(current) {
 				return
 			}
@@ -287,11 +314,7 @@ func (list *List[T]) AllData() iter.Seq[T] {
 		}
 		current := list.head
 
-		for {
-			if current == nil {
-				return
-			}
-
+		for range list.length {
 			if !yield(current.D) {
 				return
 			}

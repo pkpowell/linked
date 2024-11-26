@@ -81,11 +81,34 @@ func TestList(t *testing.T) {
 		t.Log(*d)
 	}
 }
+
+func checkList(l *List[*testItem], t *testing.T) {
+	for d := range l.AllData() {
+		d = &testItem{
+			ID:     fmt.Sprintf("%s-test-", d.ID),
+			number: d.number * 2,
+		}
+		t.Log(*d)
+	}
+}
+
+func updateList(l *List[*testItem], t *testing.T) {
+	fmt.Println("updating...")
+	for d := range l.AllData() {
+		d = &testItem{
+			ID:     fmt.Sprintf("%s-test-", d.ID),
+			number: d.number * 2,
+		}
+		t.Log(*d)
+	}
+}
 func TestListConcurrency(t *testing.T) {
-	update := time.NewTicker(time.Second)
-	check := time.NewTicker(time.Second)
+	update := time.NewTicker(time.Microsecond * 1000)
+	check := time.NewTicker(time.Microsecond * 1100)
+	done := time.NewTimer(time.Second * 60)
 	l := NewList[*testItem]()
 	for i := range 10 {
+		fmt.Println("appending...")
 		l.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
@@ -93,26 +116,13 @@ func TestListConcurrency(t *testing.T) {
 	}
 	for {
 		select {
+		case <-done.C:
+			fmt.Println("Done")
+			break
 		case <-update.C:
-			go func() {
-				for d := range l.AllData() {
-					d = &testItem{
-						ID:     fmt.Sprintf("%s-test-", d.ID),
-						number: d.number * 2,
-					}
-					t.Log(*d)
-				}
-			}()
+			go updateList(l, t)
 		case <-check.C:
-			go func() {
-				for d := range l.AllData() {
-					d = &testItem{
-						ID:     fmt.Sprintf("%s-test-", d.ID),
-						number: d.number * 2,
-					}
-					t.Log(*d)
-				}
-			}()
+			go checkList(l, t)
 		}
 	}
 

@@ -152,7 +152,7 @@ func TestDeleteLastNode(t *testing.T) {
 	}
 }
 func TestRing(t *testing.T) {
-	r := NewRing[*testItem](10)
+	r := InitRing[*testItem](256)
 	n := r.current
 	for i := range r.length {
 		t.Logf("%d: node: %p", i, n)

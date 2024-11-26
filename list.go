@@ -35,6 +35,7 @@ type List[T NodeData] struct {
 
 type Ring[T NodeData] struct {
 	current *RingNode[T]
+	head    *RingNode[T]
 
 	length int
 	mtx    *sync.RWMutex
@@ -50,6 +51,7 @@ func InitRing[T NodeData](length int) *Ring[T] {
 		length:  length,
 		mtx:     &sync.RWMutex{},
 		current: head,
+		head:    head,
 	}
 	current := head
 
@@ -72,6 +74,7 @@ func (ring *Ring[T]) Add(data *T) {
 	defer ring.mtx.Unlock()
 
 	ring.current.D = data
+	ring.current = ring.current.next
 }
 
 // NewList creates a new list

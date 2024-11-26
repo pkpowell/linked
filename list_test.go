@@ -3,6 +3,7 @@ package linked
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 type testItem struct {
@@ -79,6 +80,42 @@ func TestList(t *testing.T) {
 	for d := range l.AllData() {
 		t.Log(*d)
 	}
+}
+func TestListConcurrency(t *testing.T) {
+	update := time.NewTicker(time.Second)
+	check := time.NewTicker(time.Second)
+	l := NewList[*testItem]()
+	for i := range 10 {
+		l.Append(&testItem{
+			ID:     fmt.Sprintf("%d-test-", i),
+			number: i,
+		})
+	}
+	for {
+		select {
+		case <-update.C:
+			go func() {
+				for d := range l.AllData() {
+					d = &testItem{
+						ID:     fmt.Sprintf("%s-test-", d.ID),
+						number: d.number * 2,
+					}
+					t.Log(*d)
+				}
+			}()
+		case <-check.C:
+			go func() {
+				for d := range l.AllData() {
+					d = &testItem{
+						ID:     fmt.Sprintf("%s-test-", d.ID),
+						number: d.number * 2,
+					}
+					t.Log(*d)
+				}
+			}()
+		}
+	}
+
 }
 
 func TestEmptyList(t *testing.T) {

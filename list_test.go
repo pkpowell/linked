@@ -189,12 +189,12 @@ func TestDeleteLastNode(t *testing.T) {
 	}
 }
 func TestRing(t *testing.T) {
-	r := NewRing[*testItem](10)
+	r := InitRing[*testItem](256)
 	n := r.current
 	for i := range r.length {
-		t.Logf("%d: previous: %p, next:%p", i, n.previous, n.next)
+		t.Logf("%d: node: %p", i, n)
+		t.Logf("previous: %p, next:%p", n.previous, n.next)
 		n = n.next
-
 	}
 }
 

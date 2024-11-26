@@ -19,7 +19,7 @@ type Node[T NodeData] struct {
 }
 
 type RingNode[T NodeData] struct {
-	D        T
+	D        *T
 	next     *RingNode[T]
 	previous *RingNode[T]
 	// mtx      *sync.RWMutex
@@ -35,33 +35,46 @@ type List[T NodeData] struct {
 
 type Ring[T NodeData] struct {
 	current *RingNode[T]
+	head    *RingNode[T]
 
 	length int
 	mtx    *sync.RWMutex
 }
 
 // NewList creates a new ring buffer
-func NewRing[T NodeData](length int) *Ring[T] {
+func InitRing[T NodeData](length int) *Ring[T] {
 	var head = &RingNode[T]{}
-	var current *RingNode[T]
+	// var current *RingNode[T]
 	var new *RingNode[T]
 
 	ring := &Ring[T]{
 		length:  length,
 		mtx:     &sync.RWMutex{},
 		current: head,
+		head:    head,
 	}
-	current = head
+	current := head
+
 	for range length - 1 {
 		new = &RingNode[T]{
-			// D:        nil,
+			D:        nil,
 			previous: current,
 		}
 		current.next = new
 		current = new
 	}
+	head.previous = current
+	current.next = head
 	// current.next = ring.current
 	return ring
+}
+
+func (ring *Ring[T]) Add(data *T) {
+	ring.mtx.Lock()
+	defer ring.mtx.Unlock()
+
+	ring.current.D = data
+	ring.current = ring.current.next
 }
 
 // NewList creates a new list

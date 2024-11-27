@@ -118,7 +118,7 @@ func TestListConcurrency(t *testing.T) {
 		select {
 		case <-done.C:
 			fmt.Println("Done")
-			break
+			return
 		case <-update.C:
 			go updateList(l, t)
 		case <-check.C:

@@ -183,6 +183,7 @@ func (list *List[T]) Append(data T) *Node[T] {
 func (n *Node[T]) isHead() bool {
 	return n.list.head == n
 }
+
 func (n *Node[T]) isTail() bool {
 	return n.list.tail == n
 }
@@ -198,9 +199,10 @@ func (node *Node[T]) Delete() {
 
 	case 1:
 		//  list is now empty
-		node.list.length = 0
-		node.list.head = nil
-		node.list.tail = nil
+		node.list.clear()
+		// node.list.length = 0
+		// node.list.head = nil
+		// node.list.tail = nil
 		return
 
 	case 2:
@@ -210,8 +212,8 @@ func (node *Node[T]) Delete() {
 			node.list.head = node.previous
 		}
 
-		node.list.head.previous = nil
-		node.list.head.next = nil
+		// node.list.head.previous = nil
+		// node.list.head.next = nil
 		node.list.tail = node.list.head
 		node.list.length = 1
 		return
@@ -220,13 +222,13 @@ func (node *Node[T]) Delete() {
 	default:
 		// if node to delete is current head
 		if node.isHead() {
-			node.next.previous = nil
+			// node.next.previous = nil
 			node.list.head = node.next
 
 			// if node to delete is current tail
 		} else if node.isTail() {
 			node.list.tail = node.previous
-			node.list.tail.next = nil
+			// node.list.tail.next = nil
 
 			// if node to delete is in the middle
 		} else {
@@ -251,18 +253,21 @@ func (list *List[T]) Get(id string) *Node[T] {
 	defer list.mtx.RUnlock()
 
 	current := list.head
-	data := current.D
 
-	for {
-		if current == nil {
-			break
-		}
-		if data.GetID() == id {
+	for range list.length {
+		if current.D.GetID() == id {
 			return current
 		}
+
 		current = current.next
 	}
 	return nil
+}
+
+func (list *List[T]) clear() {
+	list.length = 0
+	list.head = nil
+	list.tail = nil
 }
 
 // DeleteNode deletes a node from the list
@@ -273,11 +278,10 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 	switch list.length {
 	case 0:
 		return
+
 	case 1:
 		//  list is now empty
-		list.length = 0
-		list.head = nil
-		list.tail = nil
+		list.clear()
 		return
 
 	case 2:
@@ -287,8 +291,8 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 			list.head = node.previous
 		}
 
-		list.head.previous = nil
-		list.head.next = nil
+		// list.head.previous = nil
+		// list.head.next = nil
 		list.tail = list.head
 		list.length = 1
 		return
@@ -309,12 +313,12 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 
 func (node *Node[T]) makeHead() {
 	node.list.head = node
-	node.previous = nil
+	// node.previous = nil
 }
 
 func (node *Node[T]) makeTail() {
 	node.list.tail = node
-	node.next = nil
+	// node.next = nil
 }
 
 // AllNodes returns all nodes in the list

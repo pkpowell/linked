@@ -88,50 +88,53 @@ func NewList[T NodeData]() *List[T] {
 }
 
 // InsertBefore adds a new node before a given node
-func (list *List[T]) InsertBefore(data T, n *Node[T]) *Node[T] {
-	node := list.newNode(data)
+func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
+	newNode := list.newNode(data)
+
 	if list.length == 0 {
-		list.head = node
-		list.tail = node
-		return node
+		list.head = newNode
+		list.tail = newNode
+	} else {
+		node.previous = newNode
+		newNode.next = node
 	}
-	n.previous = node
-	node.next = n
+
 	list.length++
-	return node
+	return newNode
 }
 
-func (l *List[T]) newNode(data T) *Node[T] {
-	return &Node[T]{D: data, mtx: &sync.RWMutex{}, list: l}
+func (list *List[T]) newNode(data T) *Node[T] {
+	return &Node[T]{D: data, mtx: &sync.RWMutex{}, list: list}
 }
 
 // InsertAfter adds a new node after a given node
-func (list *List[T]) InsertAfter(data T, n *Node[T]) *Node[T] {
-	node := list.newNode(data)
+func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
+	newNode := list.newNode(data)
+
 	if list.length == 0 {
-		list.head = node
-		list.tail = node
-		return node
+		list.head = newNode
+		list.tail = newNode
+	} else {
+		newNode.previous = node
+		node.next = newNode
 	}
 
-	node.previous = n
-	n.next = node
 	list.length++
-
-	return node
+	return newNode
 }
 
 // Prepend adds a new node to the beginning of the list
 func (list *List[T]) Prepend(data T) *Node[T] {
-	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
+
+	node := list.newNode(data)
 
 	switch list.length {
 	case 0:
@@ -144,7 +147,6 @@ func (list *List[T]) Prepend(data T) *Node[T] {
 		list.head.previous = node
 		// point new node at previous head
 		node.next = list.head
-
 		// point tail at new node
 		list.head = node
 	}
@@ -155,9 +157,10 @@ func (list *List[T]) Prepend(data T) *Node[T] {
 
 // Append adds a new node to the end of the list
 func (list *List[T]) Append(data T) *Node[T] {
-	node := list.newNode(data)
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
+
+	node := list.newNode(data)
 
 	switch list.length {
 	case 0:
@@ -168,10 +171,8 @@ func (list *List[T]) Append(data T) *Node[T] {
 	default:
 		// point tail.next at new node
 		list.tail.next = node
-
 		// point new node.previous at tail
 		node.previous = list.tail
-
 		// point tail at new node
 		list.tail = node
 	}
@@ -180,12 +181,17 @@ func (list *List[T]) Append(data T) *Node[T] {
 	return node
 }
 
-func (n *Node[T]) isHead() bool {
-	return n.list.head == n
+func (node *Node[T]) isHead() bool {
+	return node.list.head == node
 }
 
-func (n *Node[T]) isTail() bool {
-	return n.list.tail == n
+func (node *Node[T]) isTail() bool {
+	return node.list.tail == node
+}
+
+func (node *Node[T]) remove() {
+	node.previous.next = node.next
+	node.next.previous = node.previous
 }
 
 // removes node from list
@@ -200,9 +206,6 @@ func (node *Node[T]) Delete() {
 	case 1:
 		//  list is now empty
 		node.list.clear()
-		// node.list.length = 0
-		// node.list.head = nil
-		// node.list.tail = nil
 		return
 
 	case 2:
@@ -212,31 +215,21 @@ func (node *Node[T]) Delete() {
 			node.list.head = node.previous
 		}
 
-		// node.list.head.previous = nil
-		// node.list.head.next = nil
 		node.list.tail = node.list.head
 		node.list.length = 1
+
 		return
 
 	// list length 3 and longer
 	default:
-		// if node to delete is current head
-		if node.isHead() {
-			// node.next.previous = nil
+		if node.isHead() { // if node to delete is current head
 			node.list.head = node.next
-
-			// if node to delete is current tail
-		} else if node.isTail() {
+		} else if node.isTail() { // if node to delete is current tail
 			node.list.tail = node.previous
-			// node.list.tail.next = nil
-
-			// if node to delete is in the middle
-		} else {
-			node.previous.next = node.next
-			node.next.previous = node.previous
+		} else { // if node to delete is in the middle
+			node.remove()
 		}
 
-		// decrement list length
 		node.list.length--
 		return
 	}
@@ -244,6 +237,9 @@ func (node *Node[T]) Delete() {
 
 // returns list length
 func (list *List[T]) Length() int {
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
+
 	return list.length
 }
 
@@ -280,7 +276,7 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		return
 
 	case 1:
-		//  list is now empty
+		//  list is now empty (remove last element)
 		list.clear()
 		return
 
@@ -291,8 +287,6 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 			list.head = node.previous
 		}
 
-		// list.head.previous = nil
-		// list.head.next = nil
 		list.tail = list.head
 		list.length = 1
 		return
@@ -303,9 +297,9 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		} else if node.isTail() { // if node to delete is current tail
 			node.previous.makeTail()
 		} else { // if node to delete is in the middle
-			node.previous.next = node.next
-			node.next.previous = node.previous
+			node.remove()
 		}
+
 		list.length--
 		return
 	}
@@ -313,20 +307,22 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 
 func (node *Node[T]) makeHead() {
 	node.list.head = node
-	// node.previous = nil
 }
 
 func (node *Node[T]) makeTail() {
 	node.list.tail = node
-	// node.next = nil
 }
 
 // AllNodes returns all nodes in the list
 func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
+
 	return func(yield func(*Node[T]) bool) {
 		if list.length == 0 {
 			return
 		}
+
 		current := list.head
 
 		for range list.length {
@@ -340,6 +336,9 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 
 // AllData returns all data in the list (without nodes)
 func (list *List[T]) AllData() iter.Seq[T] {
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
+
 	return func(yield func(T) bool) {
 		if list.length == 0 {
 			return

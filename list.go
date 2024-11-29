@@ -180,6 +180,13 @@ func (list *List[T]) Append(data T) *Node[T] {
 	return node
 }
 
+func (n *Node[T]) isHead() bool {
+	return n.list.head == n
+}
+func (n *Node[T]) isTail() bool {
+	return n.list.tail == n
+}
+
 // removes node from list
 func (node *Node[T]) Delete() {
 	node.mtx.Lock()
@@ -197,11 +204,12 @@ func (node *Node[T]) Delete() {
 		return
 
 	case 2:
-		if node == node.list.head { // if node to delete is current head
+		if node.isHead() { // if node to delete is current head
 			node.list.head = node.next
-		} else if node.next == node.list.tail { // if node to delete is current tail
+		} else if node.isTail() { // if node to delete is current tail
 			node.list.head = node.previous
 		}
+
 		node.list.head.previous = nil
 		node.list.head.next = nil
 		node.list.tail = node.list.head
@@ -211,12 +219,12 @@ func (node *Node[T]) Delete() {
 	// list length 3 and longer
 	default:
 		// if node to delete is current head
-		if node == node.list.head {
+		if node.isHead() {
 			node.next.previous = nil
 			node.list.head = node.next
 
 			// if node to delete is current tail
-		} else if node.next == node.list.tail {
+		} else if node.isTail() {
 			node.list.tail = node.previous
 			node.list.tail.next = nil
 
@@ -273,11 +281,12 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		return
 
 	case 2:
-		if node == list.head { // if node to delete is current head
+		if node.isHead() { // if node to delete is current head
 			list.head = node.next
-		} else if node.next == list.tail { // if node to delete is current tail
+		} else if node.isTail() { // if node to delete is current tail
 			list.head = node.previous
 		}
+
 		list.head.previous = nil
 		list.head.next = nil
 		list.tail = list.head
@@ -285,14 +294,10 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		return
 
 	default:
-		if node == list.head { // if node to delete is current head
-			node.next.previous = nil
-			list.head = node.next
-
-		} else if node.next == list.tail { // if node to delete is current tail
-			list.tail = node.previous
-			list.tail.next = nil
-
+		if node.isHead() { // if node to delete is current head
+			node.next.makeHead()
+		} else if node.isTail() { // if node to delete is current tail
+			node.previous.makeTail()
 		} else { // if node to delete is in the middle
 			node.previous.next = node.next
 			node.next.previous = node.previous
@@ -300,6 +305,16 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 		list.length--
 		return
 	}
+}
+
+func (node *Node[T]) makeHead() {
+	node.list.head = node
+	node.previous = nil
+}
+
+func (node *Node[T]) makeTail() {
+	node.list.tail = node
+	node.next = nil
 }
 
 // AllNodes returns all nodes in the list

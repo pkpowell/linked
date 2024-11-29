@@ -182,6 +182,8 @@ func TestDeleteLastNode(t *testing.T) {
 	l := NewList[*testItem]()
 	l.Append(&testItem{ID: "first", number: 1})
 	l.Append(&testItem{ID: "second", number: 2})
+	l.Append(&testItem{ID: "third", number: 3})
+	l.Append(&testItem{ID: "forth", number: 4})
 
 	var lastNode *Node[*testItem]
 	for node := range l.AllNodes() {
@@ -189,13 +191,16 @@ func TestDeleteLastNode(t *testing.T) {
 	}
 	l.DeleteNode(lastNode)
 
-	if l.length != 1 {
+	if l.length != 3 {
 		t.Errorf("Expected length 1 after deletion, got %d", l.length)
 	}
 
 	remaining := l.Length()
-	if remaining != 1 {
+	if remaining != 3 {
 		t.Errorf("Expected remaining number 1, got %d", remaining)
+	}
+	for n := range l.AllNodes() {
+		t.Log("list", n.D.ID)
 	}
 }
 func TestRing(t *testing.T) {

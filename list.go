@@ -18,63 +18,11 @@ type Node[T NodeData] struct {
 	list     *List[T]
 }
 
-type RingNode[T NodeData] struct {
-	D        *T
-	next     *RingNode[T]
-	previous *RingNode[T]
-	// mtx      *sync.RWMutex
-	// list     *List[T]
-}
-
 type List[T NodeData] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
 	mtx    *sync.RWMutex
-}
-
-type Ring[T NodeData] struct {
-	current *RingNode[T]
-	head    *RingNode[T]
-
-	length int
-	mtx    *sync.RWMutex
-}
-
-// NewList creates a new ring buffer
-func InitRing[T NodeData](length int) *Ring[T] {
-	var head = &RingNode[T]{}
-	// var current *RingNode[T]
-	var new *RingNode[T]
-
-	ring := &Ring[T]{
-		length:  length,
-		mtx:     &sync.RWMutex{},
-		current: head,
-		head:    head,
-	}
-	current := head
-
-	for range length - 1 {
-		new = &RingNode[T]{
-			D:        nil,
-			previous: current,
-		}
-		current.next = new
-		current = new
-	}
-	head.previous = current
-	current.next = head
-	// current.next = ring.current
-	return ring
-}
-
-func (ring *Ring[T]) Add(data *T) {
-	ring.mtx.Lock()
-	defer ring.mtx.Unlock()
-
-	ring.current.D = data
-	ring.current = ring.current.next
 }
 
 // NewList creates a new list
@@ -94,10 +42,11 @@ func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 
 	newNode := list.newNode(data)
 
-	if list.length == 0 {
+	switch list.length {
+	case 0:
 		list.head = newNode
 		list.tail = newNode
-	} else {
+	default:
 		node.previous = newNode
 		newNode.next = node
 	}
@@ -117,10 +66,14 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 
 	newNode := list.newNode(data)
 
-	if list.length == 0 {
+	switch list.length {
+	case 0:
 		list.head = newNode
 		list.tail = newNode
-	} else {
+	default:
+		if node.isTail() {
+			newNode.makeTail()
+		}
 		newNode.previous = node
 		node.next = newNode
 	}
@@ -131,54 +84,18 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 
 // Prepend adds a new node to the beginning of the list
 func (list *List[T]) Prepend(data T) *Node[T] {
-	list.mtx.Lock()
-	defer list.mtx.Unlock()
+	// list.mtx.RLock()
+	// defer list.mtx.RUnlock()
 
-	node := list.newNode(data)
-
-	switch list.length {
-	case 0:
-		// init new list, head and tail point to new node
-		list.head = node
-		list.tail = node
-
-	default:
-		// point previous head at new node
-		list.head.previous = node
-		// point new node at previous head
-		node.next = list.head
-		// point tail at new node
-		list.head = node
-	}
-
-	list.length++
-	return node
+	return list.InsertBefore(data, list.head)
 }
 
 // Append adds a new node to the end of the list
 func (list *List[T]) Append(data T) *Node[T] {
-	list.mtx.Lock()
-	defer list.mtx.Unlock()
+	// list.mtx.RLock()
+	// defer list.mtx.RUnlock()
 
-	node := list.newNode(data)
-
-	switch list.length {
-	case 0:
-		// init new list, head and tail point to new node
-		list.head = node
-		list.tail = node
-
-	default:
-		// point tail.next at new node
-		list.tail.next = node
-		// point new node.previous at tail
-		node.previous = list.tail
-		// point tail at new node
-		list.tail = node
-	}
-
-	list.length++
-	return node
+	return list.InsertAfter(data, list.tail)
 }
 
 func (node *Node[T]) isHead() bool {
@@ -210,9 +127,9 @@ func (node *Node[T]) Delete() {
 
 	case 2:
 		if node.isHead() { // if node to delete is current head
-			node.list.head = node.next
+			node.next.makeHead()
 		} else if node.isTail() { // if node to delete is current tail
-			node.list.head = node.previous
+			node.previous.makeTail()
 		}
 
 		node.list.tail = node.list.head
@@ -223,9 +140,9 @@ func (node *Node[T]) Delete() {
 	// list length 3 and longer
 	default:
 		if node.isHead() { // if node to delete is current head
-			node.list.head = node.next
+			node.next.makeHead()
 		} else if node.isTail() { // if node to delete is current tail
-			node.list.tail = node.previous
+			node.previous.makeTail()
 		} else { // if node to delete is in the middle
 			node.remove()
 		}
@@ -306,10 +223,12 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 }
 
 func (node *Node[T]) makeHead() {
+	node.list.head.previous = node
 	node.list.head = node
 }
 
 func (node *Node[T]) makeTail() {
+	node.list.tail.next = node
 	node.list.tail = node
 }
 

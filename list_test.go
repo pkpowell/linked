@@ -71,14 +71,16 @@ func BenchmarkNewSlice(b *testing.B) {
 
 func TestList(t *testing.T) {
 	l := NewList[*testItem]()
-	for i := range 10 {
+
+	for i := range 1000 {
 		l.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}
+	t.Log("length", l.Length())
 	for d := range l.AllData() {
-		t.Log(*d)
+		t.Log("ID", d.ID)
 	}
 }
 
@@ -102,7 +104,7 @@ func updateList(l *List[*testItem], t *testing.T) {
 		t.Log(*d)
 	}
 }
-func TestListConcurrency(t *testing.T) {
+func TestListConcurrent(t *testing.T) {
 	update := time.NewTicker(time.Microsecond * 1000)
 	check := time.NewTicker(time.Microsecond * 1100)
 	done := time.NewTimer(time.Second * 60)
@@ -157,6 +159,35 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestDeleteChunk(t *testing.T) {
+	l := NewList[*testItem]()
+	for i := range 300 {
+		l.Append(&testItem{
+			ID:     fmt.Sprintf("%d-test-", i),
+			number: i,
+		})
+	}
+
+	for i := range 100 {
+		l.DeleteNode(l.Get(fmt.Sprintf("%d-test-", i+100)))
+	}
+
+	if l.length != 200 {
+		t.Errorf("Expected length 900, got %d", l.length)
+	}
+
+	for d := range l.AllData() {
+		t.Log("data", d.ID)
+	}
+
+	t.Log("90", l.Get(fmt.Sprintf("%d-test-", 90)).D.ID)
+	t.Log("99", l.Get(fmt.Sprintf("%d-test-", 99)).D.ID)
+	t.Log("200", l.Get(fmt.Sprintf("%d-test-", 200)).D.ID)
+	// t.Log("100", l.Get(fmt.Sprintf("%d-test-", 100)).D.ID)
+	// t.Log("101", l.Get(fmt.Sprintf("%d-test-", 101)).D.ID)
+	// t.Log("111", l.Get(fmt.Sprintf("%d-test-", 111)).D.ID)
+}
+
 func TestDeleteFirstNode(t *testing.T) {
 	l := NewList[*testItem]()
 	firstNode := l.Append(&testItem{ID: "first", number: 1})
@@ -201,15 +232,6 @@ func TestDeleteLastNode(t *testing.T) {
 	}
 	for n := range l.AllNodes() {
 		t.Log("list", n.D.ID)
-	}
-}
-func TestRing(t *testing.T) {
-	r := InitRing[*testItem](256)
-	n := r.current
-	for i := range r.length {
-		t.Logf("%d: node: %p", i, n)
-		t.Logf("previous: %p, next:%p", n.previous, n.next)
-		n = n.next
 	}
 }
 

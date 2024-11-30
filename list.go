@@ -1,6 +1,7 @@
 package linked
 
 import (
+	"fmt"
 	"iter"
 	"sync"
 )
@@ -28,8 +29,14 @@ type List[T NodeData] struct {
 // NewList creates a new list
 func NewList[T NodeData]() *List[T] {
 	return &List[T]{
-		head:   nil,
-		tail:   nil,
+		head: &Node[T]{
+			mtx: &sync.RWMutex{},
+			// list: list,
+		},
+		tail: &Node[T]{
+			mtx: &sync.RWMutex{},
+			// list: list,
+		},
 		length: 0,
 		mtx:    &sync.RWMutex{},
 	}
@@ -37,26 +44,30 @@ func NewList[T NodeData]() *List[T] {
 
 // InsertBefore adds a new node before a given node
 func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
-	list.mtx.Lock()
-	defer list.mtx.Unlock()
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
 
-	newNode := list.newNode(data)
+	newNode := list.makeNode(data)
 
 	switch list.length {
 	case 0:
-		list.head = newNode
-		list.tail = newNode
+		list.head.update(newNode)
+		list.tail.update(newNode)
 	default:
-		node.previous = newNode
-		newNode.next = node
+		node.previous.update(newNode)
+		newNode.next.update(node)
 	}
 
 	list.length++
 	return newNode
 }
 
-func (list *List[T]) newNode(data T) *Node[T] {
-	return &Node[T]{D: data, mtx: &sync.RWMutex{}, list: list}
+func (list *List[T]) makeNode(data T) *Node[T] {
+	return &Node[T]{
+		D:    data,
+		mtx:  &sync.RWMutex{},
+		list: list,
+	}
 }
 
 // InsertAfter adds a new node after a given node
@@ -64,18 +75,18 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
-	newNode := list.newNode(data)
+	newNode := list.makeNode(data)
 
 	switch list.length {
 	case 0:
-		list.head = newNode
-		list.tail = newNode
+		list.head.update(newNode)
+		list.tail.update(newNode)
 	default:
 		if node.isTail() {
 			newNode.makeTail()
 		}
-		newNode.previous = node
-		node.next = newNode
+		newNode.previous.update(node)
+		node.next.update(newNode)
 	}
 
 	list.length++
@@ -107,8 +118,8 @@ func (node *Node[T]) isTail() bool {
 }
 
 func (node *Node[T]) remove() {
-	node.previous.next = node.next
-	node.next.previous = node.previous
+	node.previous.next.update(node.next)
+	node.next.previous.update(node.previous)
 }
 
 // removes node from list
@@ -132,7 +143,7 @@ func (node *Node[T]) Delete() {
 			node.previous.makeTail()
 		}
 
-		node.list.tail = node.list.head
+		node.list.tail.update(node.list.head)
 		node.list.length = 1
 
 		return
@@ -162,8 +173,8 @@ func (list *List[T]) Length() int {
 
 // returns node with given id
 func (list *List[T]) Get(id string) *Node[T] {
-	list.mtx.RLock()
-	defer list.mtx.RUnlock()
+	// list.mtx.RLock()
+	// defer list.mtx.RUnlock()
 
 	current := list.head
 
@@ -172,12 +183,15 @@ func (list *List[T]) Get(id string) *Node[T] {
 			return current
 		}
 
-		current = current.next
+		current.update(current.next)
 	}
 	return nil
 }
 
 func (list *List[T]) clear() {
+	list.mtx.Lock()
+	defer list.mtx.Unlock()
+
 	list.length = 0
 	list.head = nil
 	list.tail = nil
@@ -185,8 +199,8 @@ func (list *List[T]) clear() {
 
 // DeleteNode deletes a node from the list
 func (list *List[T]) DeleteNode(node *Node[T]) {
-	list.mtx.Lock()
-	defer list.mtx.Unlock()
+	// list.mtx.Lock()
+	// defer list.mtx.Unlock()
 
 	switch list.length {
 	case 0:
@@ -199,12 +213,12 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 
 	case 2:
 		if node.isHead() { // if node to delete is current head
-			list.head = node.next
+			list.head.update(node.next)
 		} else if node.isTail() { // if node to delete is current tail
-			list.head = node.previous
+			list.head.update(node.previous)
 		}
 
-		list.tail = list.head
+		list.tail.update(list.head)
 		list.length = 1
 		return
 
@@ -223,13 +237,22 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 }
 
 func (node *Node[T]) makeHead() {
-	node.list.head.previous = node
-	node.list.head = node
+	node.list.head.previous.update(node)
+	node.list.head.update(node)
 }
 
 func (node *Node[T]) makeTail() {
-	node.list.tail.next = node
-	node.list.tail = node
+	fmt.Println("make tail", node.list.tail.D, node.list.tail.next)
+	node.list.tail.next.update(node)
+	node.list.tail.update(node)
+}
+
+func (node *Node[T]) update(newNode *Node[T]) {
+	fmt.Println("node", node)
+	node.mtx.Lock()
+	defer node.mtx.Unlock()
+
+	node = newNode
 }
 
 // AllNodes returns all nodes in the list
@@ -248,7 +271,7 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 			if !yield(current) {
 				return
 			}
-			current = current.next
+			current.update(current.next)
 		}
 	}
 }
@@ -268,7 +291,7 @@ func (list *List[T]) AllData() iter.Seq[T] {
 			if !yield(current.D) {
 				return
 			}
-			current = current.next
+			current.update(current.next)
 		}
 	}
 }

@@ -155,8 +155,8 @@ func (node *Node[T]) remove() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
-	node.previous.next = node.next
-	node.next.previous = node.previous
+	node.previous.setNext(node.next)
+	node.next.setPrevious(node.previous)
 }
 
 // removes node from list

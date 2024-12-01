@@ -31,11 +31,21 @@ func NewList[T NodeData]() *List[T] {
 	return &List[T]{
 		head: &Node[T]{
 			mtx: &sync.RWMutex{},
-			// list: list,
+			list: &List[T]{
+				head:   &Node[T]{},
+				tail:   &Node[T]{},
+				length: 0,
+				mtx:    &sync.RWMutex{},
+			},
 		},
 		tail: &Node[T]{
 			mtx: &sync.RWMutex{},
-			// list: list,
+			list: &List[T]{
+				head:   &Node[T]{},
+				tail:   &Node[T]{},
+				length: 0,
+				mtx:    &sync.RWMutex{},
+			},
 		},
 		length: 0,
 		mtx:    &sync.RWMutex{},
@@ -51,8 +61,8 @@ func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 
 	switch list.length {
 	case 0:
-		list.head.update(newNode)
-		list.tail.update(newNode)
+		list.headUpdate(newNode)
+		list.tailUpdate(newNode)
 	default:
 		node.previous.update(newNode)
 		newNode.next.update(node)
@@ -79,8 +89,8 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 
 	switch list.length {
 	case 0:
-		list.head.update(newNode)
-		list.tail.update(newNode)
+		list.headUpdate(newNode)
+		list.tailUpdate(newNode)
 	default:
 		if node.isTail() {
 			newNode.makeTail()
@@ -110,14 +120,23 @@ func (list *List[T]) Append(data T) *Node[T] {
 }
 
 func (node *Node[T]) isHead() bool {
+	if node == nil {
+		return false
+	}
 	return node.list.head == node
 }
 
 func (node *Node[T]) isTail() bool {
+	if node == nil {
+		return false
+	}
 	return node.list.tail == node
 }
 
 func (node *Node[T]) remove() {
+	if node == nil {
+		return
+	}
 	node.previous.next.update(node.next)
 	node.next.previous.update(node.previous)
 }
@@ -188,6 +207,20 @@ func (list *List[T]) Get(id string) *Node[T] {
 	return nil
 }
 
+func (list *List[T]) headUpdate(node *Node[T]) {
+	list.mtx.Lock()
+	defer list.mtx.Unlock()
+
+	list.head = node
+}
+
+func (list *List[T]) tailUpdate(node *Node[T]) {
+	list.mtx.Lock()
+	defer list.mtx.Unlock()
+
+	list.head = node
+}
+
 func (list *List[T]) clear() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -213,12 +246,14 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 
 	case 2:
 		if node.isHead() { // if node to delete is current head
-			list.head.update(node.next)
+			list.headUpdate(node.next)
+			// list.head.update(node.next)
 		} else if node.isTail() { // if node to delete is current tail
-			list.head.update(node.previous)
+			list.headUpdate(node.previous)
+			// list.head.update(node.previous)
 		}
 
-		list.tail.update(list.head)
+		list.tailUpdate(list.head)
 		list.length = 1
 		return
 
@@ -238,19 +273,23 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 
 func (node *Node[T]) makeHead() {
 	node.list.head.previous.update(node)
-	node.list.head.update(node)
+	node.list.headUpdate(node)
 }
 
 func (node *Node[T]) makeTail() {
 	fmt.Println("make tail", node.list.tail.D, node.list.tail.next)
 	node.list.tail.next.update(node)
-	node.list.tail.update(node)
+	node.list.tailUpdate(node)
 }
 
 func (node *Node[T]) update(newNode *Node[T]) {
-	fmt.Println("node", node)
-	node.mtx.Lock()
-	defer node.mtx.Unlock()
+	if node != nil {
+		node.mtx.Lock()
+		defer node.mtx.Unlock()
+	}
+	// fmt.Println("node", node)
+	// node.mtx.Lock()
+	// defer node.mtx.Unlock()
 
 	node = newNode
 }

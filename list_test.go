@@ -12,6 +12,9 @@ type testItem struct {
 }
 
 func (i *testItem) GetID() string {
+	if i == nil {
+		return ""
+	}
 	return i.ID
 }
 

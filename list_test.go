@@ -16,11 +16,12 @@ func (i *testItem) GetID() string {
 }
 
 func BenchmarkNewList(b *testing.B) {
+	// var i int
 	list := NewList[*testItem]()
-	for i := range b.N {
+	for range b.N {
 		list.Append(&testItem{
-			ID:     fmt.Sprintf("%d-test-", i),
-			number: i,
+			// ID:     fmt.Sprintf("%d-test-", i),
+			// number: i,
 		})
 	}
 	b.Logf("length list %d", list.length)
@@ -88,7 +89,7 @@ func checkList(l *List[*testItem], t *testing.T) {
 	for d := range l.AllData() {
 		d = &testItem{
 			ID:     fmt.Sprintf("%s-test-", d.ID),
-			number: d.number * 2,
+			number: d.number * 3,
 		}
 		t.Log(*d)
 	}
@@ -105,6 +106,9 @@ func updateList(l *List[*testItem], t *testing.T) {
 	}
 }
 func TestListConcurrent(t *testing.T) {
+	t.Cleanup(func() {
+		fmt.Println("cleanup")
+	})
 	update := time.NewTicker(time.Microsecond * 1000)
 	check := time.NewTicker(time.Microsecond * 1100)
 	done := time.NewTimer(time.Second * 60)
@@ -146,6 +150,7 @@ func TestAppendAndLength(t *testing.T) {
 		t.Errorf("Expected length 2, got %d", l.length)
 	}
 }
+
 func TestGet(t *testing.T) {
 	l := NewList[*testItem]()
 	ids := []string{"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"}

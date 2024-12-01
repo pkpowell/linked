@@ -222,12 +222,6 @@ func (list *List[T]) Get(id string) *Node[T] {
 	return nil
 }
 
-// func (list *List[T]) clear() {
-// 	list.setLength(0)
-// 	// list.head = nil
-// 	// list.tail = nil
-// }
-
 // DeleteNode deletes a node from the list
 func (list *List[T]) DeleteNode(node *Node[T]) {
 	switch list.length {
@@ -268,7 +262,9 @@ func (node *Node[T]) makeHead() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
+	// point current head at new head
 	node.list.head.previous = node
+	// set new head
 	node.list.head = node
 }
 
@@ -276,7 +272,9 @@ func (node *Node[T]) makeTail() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
+	// point current tail at new tail
 	node.list.tail.next = node
+	// set new tail
 	node.list.tail = node
 }
 

@@ -14,6 +14,9 @@ type testItem struct {
 func (i *testItem) GetID() string {
 	return i.ID
 }
+func (i *testItem) SetNode() string {
+	return i.ID
+}
 
 func BenchmarkNewList(b *testing.B) {
 	// var i int

@@ -71,6 +71,9 @@ func (ring *Ring[T]) inc() {
 		ring.fill++
 	}
 }
+func (ring *Ring[T]) Length() uint {
+	return min(ring.length, ring.fill)
+}
 
 func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
 	ring.mtx.RLock()
@@ -84,7 +87,7 @@ func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
 
 		current := ring.head
 
-		for range min(ring.length, ring.fill) {
+		for range ring.Length() {
 			if !yield(current) {
 				return
 			}

@@ -15,13 +15,13 @@ type Ring[T NodeData] struct {
 	current *RingNode[T]
 	head    *RingNode[T]
 
-	length int
-	fill   int
+	length uint
+	fill   uint
 	mtx    *sync.RWMutex
 }
 
 // InitRing creates a new ring buffer
-func InitRing[T NodeData](length int) *Ring[T] {
+func InitRing[T NodeData](length uint) *Ring[T] {
 	// create head node (first element)
 	var head = &RingNode[T]{}
 
@@ -63,6 +63,13 @@ func (ring *Ring[T]) Add(data T) {
 
 	ring.current.D = data
 	ring.current = ring.current.next
+	ring.inc()
+}
+
+func (ring *Ring[T]) inc() {
+	if ring.fill < ring.length {
+		ring.fill++
+	}
 }
 
 func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
@@ -77,7 +84,7 @@ func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
 
 		current := ring.head
 
-		for range ring.length {
+		for range min(ring.length, ring.fill) {
 			if !yield(current) {
 				return
 			}

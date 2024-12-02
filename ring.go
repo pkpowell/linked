@@ -16,6 +16,7 @@ type Ring[T NodeData] struct {
 	head    *RingNode[T]
 
 	length int
+	fill   int
 	mtx    *sync.RWMutex
 }
 
@@ -27,6 +28,7 @@ func InitRing[T NodeData](length int) *Ring[T] {
 	// initialise ring
 	ring := &Ring[T]{
 		length:  length,
+		fill:    0,
 		mtx:     &sync.RWMutex{},
 		current: head,
 		head:    head,

@@ -9,13 +9,15 @@ import (
 type testItem struct {
 	ID     string
 	number int
+	node   *testItem
 }
 
 func (i *testItem) GetID() string {
 	return i.ID
 }
-func (i *testItem) SetNode() string {
-	return i.ID
+
+func (i *testItem) SetNode(n *testItem) {
+	i.node = n
 }
 
 func BenchmarkNewList(b *testing.B) {

@@ -5,8 +5,22 @@ import (
 	"testing"
 )
 
+type testRingItem struct {
+	ID     string
+	number int
+	node   *testRingItem
+}
+
+func (i *testRingItem) GetID() string {
+	return i.ID
+}
+
+func (i *testRingItem) SetNode(r *testRingItem) {
+	i.node = r
+}
+
 func TestRing(t *testing.T) {
-	r := InitRing[*testItem](1024)
+	r := InitRing[*testRingItem](1024)
 	n := r.current
 	for i := range r.length {
 		t.Logf("%d: node: %p", i, n)
@@ -15,10 +29,10 @@ func TestRing(t *testing.T) {
 	}
 }
 func TestRingOverlap(t *testing.T) {
-	r := InitRing[*testItem](200)
+	r := InitRing[*testRingItem](200)
 
 	for i := range 300 {
-		r.Add(&testItem{
+		r.Add(&testRingItem{
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
@@ -30,9 +44,9 @@ func TestRingOverlap(t *testing.T) {
 }
 
 func BenchmarkRing(b *testing.B) {
-	r := InitRing[*testItem](1024)
+	r := InitRing[*testRingItem](1024)
 	for i := 0; i < b.N; i++ {
-		r.Add(&testItem{
+		r.Add(&testRingItem{
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})

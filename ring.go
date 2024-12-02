@@ -5,13 +5,19 @@ import (
 	"sync"
 )
 
-type RingNode[T NodeData] struct {
+type RingNodeData[T any] interface {
+	any
+	GetID() string
+	SetNode(T)
+}
+
+type RingNode[T RingNodeData[T]] struct {
 	D        T
 	next     *RingNode[T]
 	previous *RingNode[T]
 }
 
-type Ring[T NodeData] struct {
+type Ring[T RingNodeData[T]] struct {
 	current *RingNode[T]
 	head    *RingNode[T]
 
@@ -21,7 +27,7 @@ type Ring[T NodeData] struct {
 }
 
 // InitRing creates a new ring buffer
-func InitRing[T NodeData](length uint) *Ring[T] {
+func InitRing[T RingNodeData[T]](length uint) *Ring[T] {
 	// create head node (first element)
 	var head = &RingNode[T]{}
 

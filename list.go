@@ -8,7 +8,7 @@ import (
 type NodeData[T any] interface {
 	any
 	GetID() string
-	SetNode(T)
+	SetNode(*Node[T])
 }
 
 type Node[T NodeData[T]] struct {
@@ -42,6 +42,7 @@ func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	// defer list.mtx.Unlock()
 
 	newNode := list.newNode(data)
+	// newNode.D.SetNode(newNode.D)
 
 	switch list.length {
 	case 0:
@@ -68,6 +69,7 @@ func (list *List[T]) newNode(data T) *Node[T] {
 // InsertAfter adds a new node after a given node
 func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
+	newNode.D.SetNode(newNode)
 
 	switch list.length {
 	case 0:

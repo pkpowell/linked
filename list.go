@@ -8,7 +8,7 @@ import (
 type NodeData[T any] interface {
 	any
 	GetID() string
-	SetNode(*Node[T])
+	// SetNode(*Node)
 }
 
 type Node[T NodeData[T]] struct {
@@ -69,7 +69,7 @@ func (list *List[T]) newNode(data T) *Node[T] {
 // InsertAfter adds a new node after a given node
 func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
-	newNode.D.SetNode(newNode)
+	// newNode.D.SetNode(newNode)
 
 	switch list.length {
 	case 0:

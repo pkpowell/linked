@@ -8,7 +8,6 @@ import (
 type NodeData[T any] interface {
 	any
 	GetID() string
-	// SetNode(*Node)
 }
 
 type Node[T NodeData[T]] struct {
@@ -69,7 +68,6 @@ func (list *List[T]) newNode(data T) *Node[T] {
 // InsertAfter adds a new node after a given node
 func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
-	// newNode.D.SetNode(newNode)
 
 	switch list.length {
 	case 0:
@@ -82,8 +80,6 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 		newNode.previous = node
 		node.setNext(newNode)
 	}
-
-	// newNode.D.node = newNode
 
 	list.inc()
 	return newNode
@@ -149,7 +145,16 @@ func (list *List[T]) dec() {
 }
 
 func (node *Node[T]) isHead() bool {
-	return node.list.head == node
+	switch true {
+	case node == nil, node.list == nil:
+		return false
+
+	case node.list.length == 1:
+		return true
+
+	default:
+		return node.list.head == node
+	}
 }
 
 func (node *Node[T]) isTail() bool {

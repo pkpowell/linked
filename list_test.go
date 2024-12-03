@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"golang.org/x/exp/rand"
 )
 
 type testItem struct {
@@ -101,7 +103,7 @@ func checkList(l *List[*testItem], t *testing.T) {
 }
 
 func updateList(l *List[*testItem], t *testing.T) {
-	fmt.Println("updating...")
+	// fmt.Println("updating...")
 	for d := range l.AllData() {
 		d = &testItem{
 			ID:     fmt.Sprintf("%s-test-", d.ID),
@@ -110,17 +112,29 @@ func updateList(l *List[*testItem], t *testing.T) {
 		t.Log(*d)
 	}
 }
+func deleteFromList(l *List[*testItem], t *testing.T) {
+	for d := range l.AllNodes() {
+		r := rand.Intn(100)
+		if r > 80 {
+			fmt.Println("deleting...", d.D.ID)
+			l.DeleteNode(d)
+			// t.Log(*d)
+		}
+	}
+}
 func TestListConcurrent(t *testing.T) {
 	t.Cleanup(func() {
 		fmt.Println("cleanup")
 	})
 	update := time.NewTicker(time.Microsecond * 1000)
 	check := time.NewTicker(time.Microsecond * 1100)
+	delete := time.NewTicker(time.Microsecond * 1200)
 	done := time.NewTimer(time.Second * 60)
-	l := NewList[*testItem]()
-	for i := range 10 {
+
+	list := NewList[*testItem]()
+	for i := range 100 {
 		fmt.Println("appending...")
-		l.Append(&testItem{
+		list.Append(&testItem{
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
@@ -131,9 +145,11 @@ func TestListConcurrent(t *testing.T) {
 			fmt.Println("Done")
 			return
 		case <-update.C:
-			go updateList(l, t)
+			go updateList(list, t)
 		case <-check.C:
-			go checkList(l, t)
+			go checkList(list, t)
+		case <-delete.C:
+			go deleteFromList(list, t)
 		}
 	}
 

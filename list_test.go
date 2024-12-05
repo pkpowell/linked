@@ -21,6 +21,9 @@ func (i *testItem) GetID() string {
 func (i *testItem) SetNode(n *testItem) {
 	i.node = n
 }
+func (i *testItem) GetNode() *testItem {
+	return i.node
+}
 
 func BenchmarkNewList(b *testing.B) {
 	// var i int
@@ -112,7 +115,8 @@ func updateList(l *List[*testItem], t *testing.T) {
 		t.Log(*d)
 	}
 }
-func deleteFromList(l *List[*testItem], t *testing.T) {
+
+func deleteFromList(l *List[*testItem]) {
 	for d := range l.AllNodes() {
 		r := rand.Intn(100)
 		if r > 80 {
@@ -149,7 +153,7 @@ func TestListConcurrent(t *testing.T) {
 		case <-check.C:
 			go checkList(list, t)
 		case <-delete.C:
-			go deleteFromList(list, t)
+			go deleteFromList(list)
 		}
 	}
 

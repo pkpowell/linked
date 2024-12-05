@@ -8,6 +8,8 @@ import (
 type NodeData[T any] interface {
 	any
 	GetID() string
+	SetNode(T)
+	GetNode() T
 }
 
 type Node[T NodeData[T]] struct {

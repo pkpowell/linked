@@ -5,11 +5,13 @@ import (
 	"sync"
 )
 
-type NodeData[T any] interface {
-	any
+type Data any
+type NodeData[T Data] interface {
+	Data
 	GetID() string
-	SetNode(T)
-	GetNode() T
+	// Node *Node[T]
+	// SetNode(T)
+	// GetNode() T
 }
 
 type Node[T NodeData[T]] struct {
@@ -39,9 +41,6 @@ func NewList[T NodeData[T]]() *List[T] {
 
 // InsertBefore adds a new node before a given node
 func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
-	// list.mtx.Lock()
-	// defer list.mtx.Unlock()
-
 	newNode := list.newNode(data)
 	// newNode.D.SetNode(newNode.D)
 
@@ -252,7 +251,6 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 			list.setTail(node.previous)
 		}
 
-		// list.tail = list.head
 		list.setLength(1)
 		return
 

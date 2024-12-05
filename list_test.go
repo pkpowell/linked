@@ -21,6 +21,7 @@ func (i *testItem) GetID() string {
 func (i *testItem) SetNode(n *testItem) {
 	i.node = n
 }
+
 func (i *testItem) GetNode() *testItem {
 	return i.node
 }
@@ -45,6 +46,7 @@ func BenchmarkAllList(b *testing.B) {
 			number: i,
 		})
 	}
+
 	b.Logf("length list %d", list.length)
 	for _ = range list.AllData() {
 		// b.Log(d)

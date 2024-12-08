@@ -30,6 +30,7 @@ type Ring[T RingData[T]] struct {
 func InitRing[T RingData[T]](length uint) *Ring[T] {
 	// create head node (first element)
 	var head = &RingNode[T]{}
+	var current = head
 
 	// initialise ring
 	ring := &Ring[T]{
@@ -40,7 +41,7 @@ func InitRing[T RingData[T]](length uint) *Ring[T] {
 		head:    head,
 	}
 
-	current := head
+	// current = head
 	for range length - 1 {
 		// create new element and point it at current
 		new := &RingNode[T]{
@@ -54,6 +55,7 @@ func InitRing[T RingData[T]](length uint) *Ring[T] {
 		// set current to new element
 		current = new
 	}
+
 	// point last element at head and .v.v
 	head.previous = current
 	current.next = head
@@ -75,22 +77,23 @@ func (ring *Ring[T]) inc() {
 		ring.fill++
 	}
 }
+
 func (ring *Ring[T]) Length() uint {
 	return min(ring.length, ring.fill)
 }
 
 func (ring *Ring[T]) Get() iter.Seq[RingNode[T]] {
-	ring.mtx.RLock()
-	defer ring.mtx.RUnlock()
-
 	if ring.length == 0 {
 		return nil
 	}
 
+	ring.mtx.RLock()
+	defer ring.mtx.RUnlock()
+
+	var current *RingNode[T]
+
 	return func(yield func(RingNode[T]) bool) {
-
-		current := ring.head
-
+		current = ring.head
 		for range ring.Length() {
 			if !yield(*current) {
 				return

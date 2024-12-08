@@ -29,6 +29,7 @@ func TestRing(t *testing.T) {
 		c = c.next
 	}
 }
+
 func TestRingOverlap(t *testing.T) {
 	r := InitRing[*testRingItem](200)
 
@@ -47,10 +48,12 @@ func TestRingOverlap(t *testing.T) {
 }
 
 func BenchmarkRing(b *testing.B) {
+	b.ReportAllocs()
+
 	r := InitRing[*testRingItem](1024)
 	for i := 0; i < b.N; i++ {
 		r.Add(&testRingItem{
-			ID:     fmt.Sprintf("%d-test-", i),
+			// ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
 	}

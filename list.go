@@ -5,16 +5,11 @@ import (
 	"sync"
 )
 
-type Data any
-type NodeData[T Data] interface {
-	Data
+type Data interface {
 	GetID() string
-	// Node *Node[T]
-	// SetNode(T)
-	// GetNode() T
 }
 
-type Node[T NodeData[T]] struct {
+type Node[T Data] struct {
 	D        T
 	next     *Node[T]
 	previous *Node[T]
@@ -22,7 +17,7 @@ type Node[T NodeData[T]] struct {
 	list     *List[T]
 }
 
-type List[T NodeData[T]] struct {
+type List[T Data] struct {
 	head   *Node[T]
 	tail   *Node[T]
 	length int
@@ -30,7 +25,7 @@ type List[T NodeData[T]] struct {
 }
 
 // NewList creates a new list
-func NewList[T NodeData[T]]() *List[T] {
+func NewList[T Data]() *List[T] {
 	return &List[T]{
 		head:   nil,
 		tail:   nil,
@@ -42,7 +37,6 @@ func NewList[T NodeData[T]]() *List[T] {
 // InsertBefore adds a new node before a given node
 func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
-	// newNode.D.SetNode(newNode.D)
 
 	switch list.length {
 	case 0:

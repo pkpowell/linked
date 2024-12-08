@@ -5,19 +5,19 @@ import (
 	"sync"
 )
 
-type RingNodeData[T any] interface {
+type RingData[T any] interface {
 	any
 	GetID() string
 	SetNode(T)
 }
 
-type RingNode[T RingNodeData[T]] struct {
-	D        T
+type RingNode[T RingData[T]] struct {
+	D        *T
 	next     *RingNode[T]
 	previous *RingNode[T]
 }
 
-type Ring[T RingNodeData[T]] struct {
+type Ring[T RingData[T]] struct {
 	current *RingNode[T]
 	head    *RingNode[T]
 
@@ -27,7 +27,7 @@ type Ring[T RingNodeData[T]] struct {
 }
 
 // InitRing creates a new ring buffer
-func InitRing[T RingNodeData[T]](length uint) *Ring[T] {
+func InitRing[T RingData[T]](length uint) *Ring[T] {
 	// create head node (first element)
 	var head = &RingNode[T]{}
 
@@ -40,16 +40,14 @@ func InitRing[T RingNodeData[T]](length uint) *Ring[T] {
 		head:    head,
 	}
 
-	// current is a temp variable
 	current := head
-
 	for range length - 1 {
-		var d T
 		// create new element and point it at current
 		new := &RingNode[T]{
-			D:        d,
+			D:        new(T),
 			previous: current,
 		}
+
 		// point current at new element
 		current.next = new
 
@@ -67,7 +65,7 @@ func (ring *Ring[T]) Add(data T) {
 	ring.mtx.Lock()
 	defer ring.mtx.Unlock()
 
-	ring.current.D = data
+	ring.current.D = &data
 	ring.current = ring.current.next
 	ring.inc()
 }
@@ -81,7 +79,7 @@ func (ring *Ring[T]) Length() uint {
 	return min(ring.length, ring.fill)
 }
 
-func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
+func (ring *Ring[T]) Get() iter.Seq[RingNode[T]] {
 	ring.mtx.RLock()
 	defer ring.mtx.RUnlock()
 
@@ -89,12 +87,12 @@ func (ring *Ring[T]) Get() iter.Seq[*RingNode[T]] {
 		return nil
 	}
 
-	return func(yield func(*RingNode[T]) bool) {
+	return func(yield func(RingNode[T]) bool) {
 
 		current := ring.head
 
 		for range ring.Length() {
-			if !yield(current) {
+			if !yield(*current) {
 				return
 			}
 			current = current.next

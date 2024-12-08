@@ -21,11 +21,12 @@ func (i *testRingItem) SetNode(r *testRingItem) {
 
 func TestRing(t *testing.T) {
 	r := InitRing[*testRingItem](1024)
-	n := r.current
+	c := r.current
+
 	for i := range r.length {
-		t.Logf("%d: node: %p", i, n)
-		t.Logf("previous: %p, next: %p", n.previous, n.next)
-		n = n.next
+		t.Logf("%d: node: %p", i, c)
+		t.Logf("previous: %p, next: %p", c.previous, c.next)
+		c = c.next
 	}
 }
 func TestRingOverlap(t *testing.T) {
@@ -36,10 +37,12 @@ func TestRingOverlap(t *testing.T) {
 			ID:     fmt.Sprintf("%d-test-", i),
 			number: i,
 		})
-
 	}
-	for r := range r.Get() {
-		t.Log("res", r.D.ID)
+
+	for d := range r.Get() {
+		dp := *d.D
+
+		t.Log("res", dp.ID)
 	}
 }
 

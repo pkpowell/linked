@@ -13,8 +13,9 @@ type Node[T Data] struct {
 	D        T
 	next     *Node[T]
 	previous *Node[T]
-	mtx      *sync.RWMutex
 	list     *List[T]
+
+	mtx *sync.RWMutex
 }
 
 type List[T Data] struct {

@@ -35,7 +35,7 @@ func BenchmarkNewList(b *testing.B) {
 			// number: i,
 		})
 	}
-	b.Logf("length list %d", list.length)
+	// b.Logf("length list %d", list.length)
 }
 
 func BenchmarkAllList(b *testing.B) {

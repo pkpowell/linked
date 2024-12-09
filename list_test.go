@@ -2,6 +2,7 @@ package linked
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -11,27 +12,20 @@ import (
 type testItem struct {
 	ID     string
 	number int
-	node   *testItem
+	// node   *testItem
 }
 
 func (i *testItem) GetID() string {
 	return i.ID
 }
 
-func (i *testItem) SetNode(n *testItem) {
-	i.node = n
-}
-
-func (i *testItem) GetNode() *testItem {
-	return i.node
-}
-
 func BenchmarkNewList(b *testing.B) {
-	// var i int
+	b.ReportAllocs()
+	var i int
 	list := NewList[*testItem]()
-	for range b.N {
+	for i = range b.N {
 		list.Append(&testItem{
-			// ID:     fmt.Sprintf("%d-test-", i),
+			ID: "%d-test-" + strconv.Itoa(i),
 			// number: i,
 		})
 	}
@@ -39,6 +33,7 @@ func BenchmarkNewList(b *testing.B) {
 }
 
 func BenchmarkAllList(b *testing.B) {
+	b.ReportAllocs()
 	list := NewList[*testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
@@ -54,6 +49,7 @@ func BenchmarkAllList(b *testing.B) {
 }
 
 func BenchmarkDelete(b *testing.B) {
+	b.ReportAllocs()
 	list := NewList[*testItem]()
 	for i := range b.N {
 		list.Append(&testItem{
@@ -72,6 +68,7 @@ func BenchmarkDelete(b *testing.B) {
 }
 
 func BenchmarkNewSlice(b *testing.B) {
+	b.ReportAllocs()
 	arr := []*testItem{}
 	for i := range b.N {
 		arr = append(arr, &testItem{

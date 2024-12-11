@@ -220,7 +220,7 @@ func (list *List[T]) LengthStr() string {
 	return strconv.Itoa(list.length)
 }
 
-// returns node with given id
+// returns node with given id. T must implement GetID() string
 func (list *List[T]) Get(id string) *Node[T] {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()

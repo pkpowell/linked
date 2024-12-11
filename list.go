@@ -213,7 +213,7 @@ func (list *List[T]) Length() int {
 }
 
 // returns list length as string
-func (list *List[T]) LengthStr() string {
+func (list *List[T]) LenStr() string {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()
 

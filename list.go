@@ -2,6 +2,7 @@ package linked
 
 import (
 	"iter"
+	"strconv"
 	"sync"
 )
 
@@ -209,6 +210,14 @@ func (list *List[T]) Length() int {
 	defer list.mtx.RUnlock()
 
 	return list.length
+}
+
+// returns list length as string
+func (list *List[T]) LengthStr() string {
+	list.mtx.RLock()
+	defer list.mtx.RUnlock()
+
+	return strconv.Itoa(list.length)
 }
 
 // returns node with given id

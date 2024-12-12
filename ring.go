@@ -78,7 +78,7 @@ func (ring *Ring[T]) inc() {
 	}
 }
 
-func (ring *Ring[T]) Length() uint {
+func (ring *Ring[T]) Len() uint {
 	return min(ring.length, ring.fill)
 }
 
@@ -94,7 +94,7 @@ func (ring *Ring[T]) Get() iter.Seq[RingNode[T]] {
 
 	return func(yield func(RingNode[T]) bool) {
 		current = ring.head
-		for range ring.Length() {
+		for range ring.Len() {
 			if !yield(*current) {
 				return
 			}

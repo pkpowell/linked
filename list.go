@@ -205,7 +205,7 @@ func (node *Node[T]) Delete() {
 }
 
 // returns list length
-func (list *List[T]) Length() int {
+func (list *List[T]) Len() int {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()
 

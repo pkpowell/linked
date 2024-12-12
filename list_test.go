@@ -88,7 +88,7 @@ func TestList(t *testing.T) {
 			number: i,
 		})
 	}
-	t.Log("length", l.Length())
+	t.Log("length", l.Len())
 	for d := range l.AllData() {
 		t.Log("ID", d.ID)
 	}
@@ -255,7 +255,7 @@ func TestDeleteLastNode(t *testing.T) {
 		t.Errorf("Expected length 1 after deletion, got %d", l.length)
 	}
 
-	remaining := l.Length()
+	remaining := l.Len()
 	if remaining != 3 {
 		t.Errorf("Expected remaining number 1, got %d", remaining)
 	}

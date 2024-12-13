@@ -26,7 +26,7 @@ type List[T Data] struct {
 	mtx    *sync.RWMutex
 }
 
-// NewList creates a new list
+// NewList returns a new list
 func NewList[T Data]() *List[T] {
 	return &List[T]{
 		head:   nil,
@@ -54,6 +54,7 @@ func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	return newNode
 }
 
+// newNode returns a new node with the given data
 func (list *List[T]) newNode(data T) *Node[T] {
 	return &Node[T]{
 		D:    data,
@@ -82,6 +83,7 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	return newNode
 }
 
+// setNext sets the next node
 func (node *Node[T]) setNext(newNode *Node[T]) {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -89,6 +91,7 @@ func (node *Node[T]) setNext(newNode *Node[T]) {
 	node.next = newNode
 }
 
+// setPrevious sets the previous node
 func (node *Node[T]) setPrevious(newNode *Node[T]) {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -106,6 +109,7 @@ func (list *List[T]) Append(data T) *Node[T] {
 	return list.InsertAfter(data, list.tail)
 }
 
+// setHead sets the head node
 func (list *List[T]) setHead(node *Node[T]) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -113,6 +117,7 @@ func (list *List[T]) setHead(node *Node[T]) {
 	list.head = node
 }
 
+// setTail sets the tail node
 func (list *List[T]) setTail(node *Node[T]) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -120,6 +125,7 @@ func (list *List[T]) setTail(node *Node[T]) {
 	list.tail = node
 }
 
+// setLength sets the length of the list
 func (list *List[T]) setLength(l int) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -127,6 +133,7 @@ func (list *List[T]) setLength(l int) {
 	list.length = l
 }
 
+// inc increments the the list length
 func (list *List[T]) inc() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -134,6 +141,7 @@ func (list *List[T]) inc() {
 	list.length++
 }
 
+// dec decrements the the list length
 func (list *List[T]) dec() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -141,6 +149,7 @@ func (list *List[T]) dec() {
 	list.length--
 }
 
+// isHead returns true if the node is the current head
 func (node *Node[T]) isHead() bool {
 	switch true {
 	case node == nil, node.list == nil:
@@ -154,10 +163,12 @@ func (node *Node[T]) isHead() bool {
 	}
 }
 
+// isTail returns true if the node is the current tail
 func (node *Node[T]) isTail() bool {
 	return node.list.tail == node
 }
 
+// remove removes itself from the list
 func (node *Node[T]) remove() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -166,7 +177,7 @@ func (node *Node[T]) remove() {
 	node.next.setPrevious(node.previous)
 }
 
-// removes node from list
+// removes node from list and sets new head or tail
 func (node *Node[T]) Delete() {
 	switch node.list.length {
 	case 0:
@@ -272,6 +283,7 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 	}
 }
 
+// makeHead promotes the node to head
 func (node *Node[T]) makeHead() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -282,6 +294,7 @@ func (node *Node[T]) makeHead() {
 	node.list.head = node
 }
 
+// makeTail promotes the node to tail
 func (node *Node[T]) makeTail() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()

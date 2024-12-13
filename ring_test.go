@@ -28,6 +28,28 @@ func TestRing(t *testing.T) {
 		t.Logf("previous: %p, next: %p", c.previous, c.next)
 		c = c.next
 	}
+
+	t.Log("fill", r.fill)
+	t.Log("length", r.Len())
+}
+func TestRingAdd(t *testing.T) {
+	r := InitRing[*testRingItem](1024)
+	// c := r.current
+
+	for i := range 1500 {
+		r.Add(&testRingItem{
+			ID:     fmt.Sprintf("%d-test-", i),
+			number: int(i),
+		})
+	}
+
+	for d := range r.Get() {
+		dp := *d.D
+		t.Log("dp", dp.ID)
+	}
+
+	t.Log("fill", r.fill)
+	t.Log("length", r.Len())
 }
 
 func TestRingOverlap(t *testing.T) {

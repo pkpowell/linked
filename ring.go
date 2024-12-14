@@ -72,13 +72,13 @@ func (ring *Ring[T]) Add(data T) {
 	ring.inc()
 }
 
-func (ring *Ring[T]) inc() {
+func (ring *Ring[_]) inc() {
 	if ring.fill < ring.length {
 		ring.fill++
 	}
 }
 
-func (ring *Ring[T]) Len() uint {
+func (ring *Ring[_]) Len() uint {
 	return min(ring.length, ring.fill)
 }
 

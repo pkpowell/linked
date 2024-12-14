@@ -43,7 +43,7 @@ func BenchmarkAllList(b *testing.B) {
 	}
 
 	b.Logf("length list %d", list.length)
-	for _ = range list.AllData() {
+	for range list.AllData() {
 		// b.Log(d)
 	}
 }
@@ -57,6 +57,7 @@ func BenchmarkDelete(b *testing.B) {
 			number: i,
 		})
 	}
+
 	for d := range list.AllNodes() {
 		if d.D.number%200 == 0 {
 			list.DeleteNode(d)

@@ -26,7 +26,7 @@ type List[T Data] struct {
 	mtx    *sync.RWMutex
 }
 
-// NewList returns a new list
+// returns a new list
 func NewList[T Data]() *List[T] {
 	return &List[T]{
 		head:   nil,
@@ -36,7 +36,7 @@ func NewList[T Data]() *List[T] {
 	}
 }
 
-// InsertBefore adds a new node before a given node
+// inserts a new node before a given node
 func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
 
@@ -54,7 +54,7 @@ func (list *List[T]) InsertBefore(data T, node *Node[T]) *Node[T] {
 	return newNode
 }
 
-// newNode returns a new node with the given data
+// returns a new node
 func (list *List[T]) newNode(data T) *Node[T] {
 	return &Node[T]{
 		D:    data,
@@ -63,7 +63,7 @@ func (list *List[T]) newNode(data T) *Node[T] {
 	}
 }
 
-// InsertAfter adds a new node after a given node
+// inserts a new node after a given node
 func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	newNode := list.newNode(data)
 
@@ -126,7 +126,7 @@ func (list *List[T]) setTail(node *Node[T]) {
 }
 
 // setLength sets the length of the list
-func (list *List[T]) setLength(l int) {
+func (list *List[_]) setLength(l int) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -134,7 +134,7 @@ func (list *List[T]) setLength(l int) {
 }
 
 // inc increments the the list length
-func (list *List[T]) inc() {
+func (list *List[_]) inc() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -142,7 +142,7 @@ func (list *List[T]) inc() {
 }
 
 // dec decrements the the list length
-func (list *List[T]) dec() {
+func (list *List[_]) dec() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
 
@@ -150,7 +150,7 @@ func (list *List[T]) dec() {
 }
 
 // isHead returns true if the node is the current head
-func (node *Node[T]) isHead() bool {
+func (node *Node[_]) isHead() bool {
 	switch true {
 	case node == nil, node.list == nil:
 		return false
@@ -164,12 +164,12 @@ func (node *Node[T]) isHead() bool {
 }
 
 // isTail returns true if the node is the current tail
-func (node *Node[T]) isTail() bool {
+func (node *Node[_]) isTail() bool {
 	return node.list.tail == node
 }
 
 // remove removes itself from the list
-func (node *Node[T]) remove() {
+func (node *Node[_]) remove() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
@@ -178,7 +178,7 @@ func (node *Node[T]) remove() {
 }
 
 // removes node from list and sets new head or tail
-func (node *Node[T]) Delete() {
+func (node *Node[_]) Delete() {
 	switch node.list.length {
 	case 0:
 		return
@@ -216,7 +216,7 @@ func (node *Node[T]) Delete() {
 }
 
 // returns list length
-func (list *List[T]) Len() int {
+func (list *List[_]) Len() int {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()
 
@@ -224,7 +224,7 @@ func (list *List[T]) Len() int {
 }
 
 // returns list length as string
-func (list *List[T]) LenStr() string {
+func (list *List[_]) LenStr() string {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()
 
@@ -248,7 +248,7 @@ func (list *List[T]) Get(id string) *Node[T] {
 	return nil
 }
 
-// DeleteNode deletes a node from the list
+// deletes a node from the list
 func (list *List[T]) DeleteNode(node *Node[T]) {
 	switch list.length {
 	case 0:
@@ -284,7 +284,7 @@ func (list *List[T]) DeleteNode(node *Node[T]) {
 }
 
 // makeHead promotes the node to head
-func (node *Node[T]) makeHead() {
+func (node *Node[_]) makeHead() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
@@ -295,7 +295,7 @@ func (node *Node[T]) makeHead() {
 }
 
 // makeTail promotes the node to tail
-func (node *Node[T]) makeTail() {
+func (node *Node[_]) makeTail() {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
 
@@ -305,7 +305,7 @@ func (node *Node[T]) makeTail() {
 	node.list.tail = node
 }
 
-// AllNodes returns all nodes in the list
+// returns all nodes in the list
 func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	return func(yield func(*Node[T]) bool) {
 		if list.length == 0 {
@@ -313,7 +313,6 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 		}
 
 		current := list.head
-
 		for range list.length {
 			if !yield(current) {
 				return
@@ -323,7 +322,7 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	}
 }
 
-// AllData returns all data in the list (without nodes)
+// returns all data in the list (without nodes)
 func (list *List[T]) AllData() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		if list.length == 0 {

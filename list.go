@@ -7,6 +7,7 @@ import (
 )
 
 type Data interface {
+	comparable
 	GetID() string
 }
 
@@ -231,7 +232,8 @@ func (list *List[_]) LenStr() string {
 	return strconv.Itoa(list.length)
 }
 
-// returns node with given id. T must implement GetID() string
+// returns node with given id (T must implement GetID() string).
+// returns nil if node not found
 func (list *List[T]) Get(id string) *Node[T] {
 	list.mtx.RLock()
 	defer list.mtx.RUnlock()

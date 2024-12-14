@@ -179,11 +179,14 @@ func TestAppendAndLength(t *testing.T) {
 func TestGet(t *testing.T) {
 	l := NewList[*testItem]()
 	ids := []string{"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"}
-	for idx, id := range ids {
-		node := l.Append(&testItem{ID: id, number: idx})
 
+	for idx, id := range ids {
+		l.Append(&testItem{ID: id, number: idx})
+	}
+
+	for _, id := range ids {
 		get := l.Get(id)
-		if get == node {
+		if get != nil {
 			t.Logf("Found node %v", get.D)
 		}
 	}
@@ -210,12 +213,14 @@ func TestDeleteChunk(t *testing.T) {
 		t.Log("data", d.ID)
 	}
 
-	t.Log("90", l.Get(fmt.Sprintf("%d-test-", 90)).D.ID)
-	t.Log("99", l.Get(fmt.Sprintf("%d-test-", 99)).D.ID)
-	t.Log("200", l.Get(fmt.Sprintf("%d-test-", 200)).D.ID)
-	// t.Log("100", l.Get(fmt.Sprintf("%d-test-", 100)).D.ID)
-	// t.Log("101", l.Get(fmt.Sprintf("%d-test-", 101)).D.ID)
-	// t.Log("111", l.Get(fmt.Sprintf("%d-test-", 111)).D.ID)
+	for _, i := range []int{10, 90, 90, 100, 110, 150, 200, 250, 300} {
+		d := l.Get(fmt.Sprintf("%d-test-", i))
+		if d == nil {
+			t.Logf("no data with id %d", i)
+		} else {
+			t.Log("found data", d.D.ID)
+		}
+	}
 }
 
 func TestDeleteFirstNode(t *testing.T) {

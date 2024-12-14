@@ -83,7 +83,7 @@ func (list *List[T]) InsertAfter(data T, node *Node[T]) *Node[T] {
 	return newNode
 }
 
-// setNext sets the next node
+// sets the next node
 func (node *Node[T]) setNext(newNode *Node[T]) {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -91,7 +91,7 @@ func (node *Node[T]) setNext(newNode *Node[T]) {
 	node.next = newNode
 }
 
-// setPrevious sets the previous node
+// sets the previous node
 func (node *Node[T]) setPrevious(newNode *Node[T]) {
 	node.mtx.Lock()
 	defer node.mtx.Unlock()
@@ -109,7 +109,7 @@ func (list *List[T]) Append(data T) *Node[T] {
 	return list.InsertAfter(data, list.tail)
 }
 
-// setHead sets the head node
+// sets the head node
 func (list *List[T]) setHead(node *Node[T]) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -117,7 +117,7 @@ func (list *List[T]) setHead(node *Node[T]) {
 	list.head = node
 }
 
-// setTail sets the tail node
+// sets the tail node
 func (list *List[T]) setTail(node *Node[T]) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -125,7 +125,7 @@ func (list *List[T]) setTail(node *Node[T]) {
 	list.tail = node
 }
 
-// setLength sets the length of the list
+// sets the length of the list
 func (list *List[_]) setLength(l int) {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -133,7 +133,7 @@ func (list *List[_]) setLength(l int) {
 	list.length = l
 }
 
-// inc increments the the list length
+// increments the the list length
 func (list *List[_]) inc() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -141,7 +141,7 @@ func (list *List[_]) inc() {
 	list.length++
 }
 
-// dec decrements the the list length
+// decrements the the list length
 func (list *List[_]) dec() {
 	list.mtx.Lock()
 	defer list.mtx.Unlock()
@@ -149,7 +149,7 @@ func (list *List[_]) dec() {
 	list.length--
 }
 
-// isHead returns true if the node is the current head
+// returns true if the node is the current head
 func (node *Node[_]) isHead() bool {
 	switch true {
 	case node == nil, node.list == nil:
@@ -163,7 +163,7 @@ func (node *Node[_]) isHead() bool {
 	}
 }
 
-// isTail returns true if the node is the current tail
+// returns true if the node is the current tail
 func (node *Node[_]) isTail() bool {
 	return node.list.tail == node
 }

@@ -307,7 +307,7 @@ func (node *Node[_]) makeTail() {
 	node.list.tail = node
 }
 
-// returns all nodes in the list
+// returns an iterator over all nodes in the list
 func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	return func(yield func(*Node[T]) bool) {
 		if list.length == 0 {
@@ -324,7 +324,7 @@ func (list *List[T]) AllNodes() iter.Seq[*Node[T]] {
 	}
 }
 
-// returns all data in the list (without nodes)
+// returns an iterator over the list data
 func (list *List[T]) AllData() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		if list.length == 0 {
@@ -339,4 +339,32 @@ func (list *List[T]) AllData() iter.Seq[T] {
 			current = current.next
 		}
 	}
+}
+
+// returns an iterator over the list data
+func (list *List[T]) Iter() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		if list.length == 0 {
+			return
+		}
+		current := list.head
+
+		for range list.length {
+			if !yield(current.D) {
+				return
+			}
+			current = current.next
+		}
+	}
+}
+
+// returns the data in the list as an array
+func (list *List[T]) ToArray() (a []T) {
+	current := list.head
+	for range list.length {
+		a = append(a, current.D)
+		current = current.next
+	}
+
+	return
 }
